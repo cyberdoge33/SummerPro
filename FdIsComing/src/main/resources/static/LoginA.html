@@ -5,38 +5,193 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>管理员登录</title>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Microsoft YaHei', sans-serif;
+    }
+
+    body {
+      background-color: #f5f7fa;
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 400px;
+      padding: 40px;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #2c3e50;
+      font-size: 28px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+      transition: all 0.3s;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      border-color: #3498db;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 12px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin-top: 10px;
+    }
+
+    .login-btn:hover {
+      background-color: #2980b9;
+    }
+
+    .login-btn:active {
+      transform: translateY(1px);
+    }
+
+    .footer-text {
+      text-align: center;
+      margin-top: 20px;
+      color: #7f8c8d;
+      font-size: 14px;
+    }
+
+    .error-message {
+      color: #e74c3c;
+      font-size: 14px;
+      margin-top: 5px;
+      display: none;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .logo img {
+      height: 50px;
+    }
+  </style>
 </head>
 <body>
-<h1>管理员登录</h1>
+<div class="login-container">
+  <div class="logo">
+    <!-- 可以在这里添加你的logo -->
+    <!-- <img src="logo.png" alt="系统Logo"> -->
+  </div>
+  <h1>管理员登录</h1>
 
-<form id="loginForm">
-  <div>
-    <label>用户名：</label>
-    <input type="text" id="username" required>
+  <form id="loginForm">
+    <div class="form-group">
+      <label for="username">用户名：</label>
+      <input type="text" id="username" placeholder="请输入管理员账号" required>
+      <div id="usernameError" class="error-message"></div>
+    </div>
+
+    <div class="form-group">
+      <label for="password">密码：</label>
+      <input type="password" id="password" placeholder="请输入密码" required>
+      <div id="passwordError" class="error-message"></div>
+    </div>
+
+    <button type="button" class="login-btn" onclick="login()">登 录</button>
+  </form>
+
+  <div class="footer-text">
+    ©2023 管理系统 | 管理员专用
   </div>
-  <div>
-    <label>密码：</label>
-    <input type="password" id="password" required>
-  </div>
-  <div>
-    <button type="button" onclick="login()">登录</button>
-  </div>
-</form>
+</div>
 
 <script>
+  // 显示错误信息
+  function showError(elementId, message) {
+    const element = document.getElementById(elementId);
+    element.textContent = message;
+    element.style.display = 'block';
+  }
+
+  // 隐藏错误信息
+  function hideError(elementId) {
+    document.getElementById(elementId).style.display = 'none';
+  }
+
   // 登录函数
   function login() {
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
 
-    if (!username || !password) {
-      alert('请输入用户名和密码');
+    // 隐藏所有错误信息
+    hideError('usernameError');
+    hideError('passwordError');
+
+    // 验证输入
+    if (!username) {
+      showError('usernameError', '请输入用户名');
       return;
     }
+
+    if (!password) {
+      showError('passwordError', '请输入密码');
+      return;
+    }
+
+    // 添加加载效果
+    const btn = document.querySelector('.login-btn');
+    btn.disabled = true;
+    btn.textContent = '登录中...';
 
     // 查询用户信息
     axios.get(`http://localhost:8091/Users/selectByUsername?username=${username}`)
             .then(response => {
+              btn.disabled = false;
+              btn.textContent = '登 录';
+
               if (response.data.code === 200 && response.data.data) {
                 const user = response.data.data;
 
@@ -50,14 +205,16 @@
                   // 跳转到管理员页面
                   window.location.href = "Admin.html";
                 } else {
-                  alert('用户名或密码错误，或不是管理员账号');
+                  showError('passwordError', '用户名或密码错误，或不是管理员账号');
                 }
               } else {
-                alert('用户不存在');
+                showError('usernameError', '用户不存在');
               }
             })
             .catch(error => {
-              alert('登录出错: ' + error.message);
+              btn.disabled = false;
+              btn.textContent = '登 录';
+              showError('passwordError', '登录出错: ' + error.message);
             });
   }
 
@@ -66,6 +223,15 @@
     if (e.key === 'Enter') {
       login();
     }
+  });
+
+  // 输入时隐藏错误信息
+  document.getElementById('username').addEventListener('input', function() {
+    hideError('usernameError');
+  });
+
+  document.getElementById('password').addEventListener('input', function() {
+    hideError('passwordError');
   });
 </script>
 </body>

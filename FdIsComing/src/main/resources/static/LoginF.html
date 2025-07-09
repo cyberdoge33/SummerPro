@@ -1,74 +1,298 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>房主登录</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.2.31/dist/vue.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+            padding: 40px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .login-container:hover {
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .login-header h2 {
+            color: #2c3e50;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .login-header p {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #e0e3e7;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s;
+            background-color: #f8f9fa;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            background-color: white;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 8px;
+        }
+
+        .login-btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-1px);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 24px;
+            font-size: 14px;
+        }
+
+        .footer-links a {
+            color: #3498db;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: #2980b9;
+            text-decoration: underline;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 13px;
+            margin-top: 6px;
+            display: none;
+        }
+
+        .loading {
+            position: relative;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: "";
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 50%;
+            left: 50%;
+            margin-left: -8px;
+            margin-top: -8px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 30px 20px;
+                margin: 0 15px;
+            }
+        }
+    </style>
 </head>
 <body>
 <div id="app">
-    <h2>房主登录</h2>
-    <form @submit.prevent="login">
-        <div>
-            <label for="zhanghao">房主账号：</label>
-            <input type="text" id="zhanghao" v-model="zhanghao" required>
+    <div class="login-container">
+        <div class="login-header">
+            <h2>房主登录</h2>
+            <p>欢迎回来，请登录您的账户</p>
         </div>
-        <div>
-            <label for="mima">密码：</label>
-            <input type="password" id="mima" v-model="mima" required>
-        </div>
-        <button type="submit">登录</button>
-    </form>
+
+        <form @submit.prevent="login">
+            <div class="form-group">
+                <label for="zhanghao">房主账号</label>
+                <input
+                        type="text"
+                        id="zhanghao"
+                        v-model="zhanghao"
+                        placeholder="请输入您的房主账号"
+                        required
+                        @input="hideError('zhanghaoError')"
+                >
+                <div id="zhanghaoError" class="error-message"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="mima">密码</label>
+                <input
+                        type="password"
+                        id="mima"
+                        v-model="mima"
+                        placeholder="请输入您的密码"
+                        required
+                        @input="hideError('mimaError')"
+                        @keyup.enter="login"
+                >
+                <div id="mimaError" class="error-message"></div>
+            </div>
+
+            <button
+                    type="submit"
+                    class="login-btn"
+                    :class="{ loading: isLoading }"
+                    :disabled="isLoading"
+            >
+                <span v-if="!isLoading">登 录</span>
+                <span v-else>登录中...</span>
+            </button>
+
+            <div class="footer-links">
+                <a href="Register.html">注册房主账号</a>
+                <a href="ForgotPassword.html">忘记密码？</a>
+            </div>
+        </form>
+    </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/vue@3.2.31/dist/vue.global.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
     const { createApp } = Vue;
 
     createApp({
         data() {
             return {
-                id: '',
                 zhanghao: '',
-                mima: ''
+                mima: '',
+                isLoading: false
             }
         },
         methods: {
+            showError(elementId, message) {
+                const element = document.getElementById(elementId);
+                element.textContent = message;
+                element.style.display = 'block';
+            },
+
+            hideError(elementId) {
+                document.getElementById(elementId).style.display = 'none';
+            },
+
             login() {
-                // 修正了axios请求的URL拼接问题
+                // 验证输入
+                if (!this.zhanghao.trim()) {
+                    this.showError('zhanghaoError', '请输入房主账号');
+                    return;
+                }
+
+                if (!this.mima.trim()) {
+                    this.showError('mimaError', '请输入密码');
+                    return;
+                }
+
+                this.isLoading = true;
+
                 axios.get(`/Fangzhu/selectByZhanghao?zhanghao=${this.zhanghao}`)
                     .then(response => {
-                        if (response.data.code === 200) {
+                        this.isLoading = false;
+
+                        if (response.data.code === 200 && response.data.data) {
                             const user = response.data.data;
-                            console.log(user)
+
                             // 验证密码
                             if (user.mima === this.mima) {
                                 sessionStorage.clear();
-                                sessionStorage.setItem('Fangzhuid', user.id);//房主id存入session
-                                sessionStorage.setItem('Fangzhuzhanghao', user.fangzhuzhanghao);//房主账号存入session
-                                sessionStorage.setItem('Role', "Fangzhu");//身份信息存入session
-                                sessionStorage.setItem('UserName', user.fangzhuxingming)//房主姓名存入session
-                                console.log(user.fangzhuxingming)
-                                /**
-                                 *  logout() {
-                                 // 清除sessionStorage
-                                  sessionStorage.removeItem('userId');
-                                sessionStorage.removeItem('UserName');
-                                     }
-                                 */
-                                alert('登录成功');
-                                window.location.href = 'ManageFangwu.html';//登陆成功跳转接口
+                                sessionStorage.setItem('Fangzhuid', user.id);
+                                sessionStorage.setItem('Fangzhuzhanghao', user.fangzhuzhanghao);
+                                sessionStorage.setItem('Role', "Fangzhu");
+                                sessionStorage.setItem('UserName', user.fangzhuxingming);
+
+                                // 使用更友好的提示方式
+                                this.showSuccessToast('登录成功，即将跳转...');
+
+                                // 延迟跳转让用户看到提示
+                                setTimeout(() => {
+                                    window.location.href = 'ManageFangwu.html';
+                                }, 1500);
                             } else {
-                                alert('密码错误');
+                                this.showError('mimaError', '密码错误，请重新输入');
                             }
                         } else {
-                            alert('用户不存在');
+                            this.showError('zhanghaoError', '账号不存在，请检查或注册');
                         }
                     })
                     .catch(error => {
+                        this.isLoading = false;
                         console.error('登录失败:', error);
-                        alert('登录失败，请重试');
+                        this.showError('mimaError', '登录失败，请稍后重试');
                     });
+            },
+
+            showSuccessToast(message) {
+                // 可以替换为更美观的toast通知
+                alert(message);
             }
         }
     }).mount('#app');

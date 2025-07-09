@@ -4,11 +4,141 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>用户注册</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            background-image: url('img/1.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 30px auto;
+            padding: 30px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+            font-size: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="tel"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        input[type="tel"]:focus,
+        select:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border: 1px dashed #ddd;
+            border-radius: 5px;
+        }
+
+        .tip {
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .error {
+            color: #e74c3c;
+        }
+
+        .success {
+            color: #2ecc71;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .form-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .form-footer a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        .form-footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
     <script>
         function checkUsername() {
             var username = document.getElementById("yonghuming").value;
+            var usernameTip = document.getElementById("usernameTip");
+
             if(username === "") {
-                document.getElementById("usernameTip").innerText = "请输入用户名";
+                usernameTip.innerText = "请输入用户名";
+                usernameTip.className = "tip error";
+                return;
+            }
+
+            // 用户名格式验证：4-16位字母数字组合
+            var regex = /^[a-zA-Z0-9]{4,16}$/;
+            if(!regex.test(username)) {
+                usernameTip.innerText = "用户名需为4-16位字母或数字组合";
+                usernameTip.className = "tip error";
                 return;
             }
 
@@ -16,23 +146,137 @@
                 .then(response => response.json())
                 .then(data => {
                     if(data.data) {
-                        document.getElementById("usernameTip").innerText = "用户名已存在，请更换";
+                        usernameTip.innerText = "用户名已存在，请更换";
+                        usernameTip.className = "tip error";
                     } else {
-                        document.getElementById("usernameTip").innerText = "用户名可用";
+                        usernameTip.innerText = "用户名可用";
+                        usernameTip.className = "tip success";
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    document.getElementById("usernameTip").innerText = "检查用户名时出错";
+                    usernameTip.innerText = "检查用户名时出错";
+                    usernameTip.className = "tip error";
                 });
+        }
+
+        function validatePassword() {
+            var password = document.getElementById("mima").value;
+            var passwordTip = document.getElementById("passwordTip");
+
+            if(password === "") {
+                passwordTip.innerText = "请输入密码";
+                passwordTip.className = "tip error";
+                return;
+            }
+
+            // 密码强度验证：6-18位，包含字母和数字
+            var regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,18}$/;
+            if(!regex.test(password)) {
+                passwordTip.innerText = "密码需为6-18位字母和数字组合";
+                passwordTip.className = "tip error";
+            } else {
+                passwordTip.innerText = "密码强度足够";
+                passwordTip.className = "tip success";
+            }
+        }
+
+        function validatePhone() {
+            var phone = document.getElementById("lianxidianhua").value;
+            var phoneTip = document.getElementById("phoneTip");
+
+            if(phone === "") {
+                phoneTip.innerText = "请输入联系电话";
+                phoneTip.className = "tip error";
+                return;
+            }
+
+            // 手机号格式验证
+            var regex = /^1[3-9]\d{9}$/;
+            if(!regex.test(phone)) {
+                phoneTip.innerText = "请输入有效的手机号码";
+                phoneTip.className = "tip error";
+            } else {
+                phoneTip.innerText = "联系电话格式正确";
+                phoneTip.className = "tip success";
+            }
+        }
+
+        function validateIdCard() {
+            var idCard = document.getElementById("shenfenzheng").value;
+            var idCardTip = document.getElementById("idCardTip");
+
+            if(idCard === "") {
+                idCardTip.innerText = "请输入身份证号码";
+                idCardTip.className = "tip error";
+                return;
+            }
+
+            // 简单身份证格式验证
+            var regex = /^[1-9]\d{5}(18|19|20)\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{3}[\dXx]$/;
+            if(!regex.test(idCard)) {
+                idCardTip.innerText = "请输入有效的身份证号码";
+                idCardTip.className = "tip error";
+            } else {
+                idCardTip.innerText = "身份证号码格式正确";
+                idCardTip.className = "tip success";
+            }
         }
 
         function validateForm(event) {
             event.preventDefault(); // 阻止表单默认提交
 
             var usernameTip = document.getElementById("usernameTip").innerText;
+            var usernameInput = document.getElementById("yonghuming").value;
+            var passwordInput = document.getElementById("mima").value;
+            var nameInput = document.getElementById("xingming").value;
+            var genderInput = document.getElementById("xingbie").value;
+            var avatarInput = document.getElementById("touxiang").value;
+
+            // 验证用户名
+            if(usernameInput === "") {
+                alert("请输入用户名");
+                return false;
+            }
+
+            var usernameRegex = /^[a-zA-Z0-9]{4,16}$/;
+            if(!usernameRegex.test(usernameInput)) {
+                alert("用户名需为4-16位字母或数字组合");
+                return false;
+            }
+
             if(usernameTip === "用户名已存在，请更换") {
                 alert("请更换用户名后再提交");
+                return false;
+            }
+
+            // 验证密码
+            if(passwordInput === "") {
+                alert("请输入密码");
+                return false;
+            }
+
+            var passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,18}$/;
+            if(!passwordRegex.test(passwordInput)) {
+                alert("密码需为6-18位字母和数字组合");
+                return false;
+            }
+
+            // 验证姓名
+            if(nameInput === "") {
+                alert("请输入姓名");
+                return false;
+            }
+
+            // 验证性别
+            if(genderInput === "") {
+                alert("请选择性别");
+                return false;
+            }
+
+            // 验证头像
+            if(avatarInput === "") {
+                alert("请上传头像");
                 return false;
             }
 
@@ -63,56 +307,70 @@
     </script>
 </head>
 <body>
-<h1>用户注册</h1>
-<form method="post" enctype="multipart/form-data" onsubmit="return validateForm(event)">
-    <div>
-        <label for="yonghuming">用户名：</label>
-        <input type="text" id="yonghuming" name="yonghuming" required onblur="checkUsername()">
-        <span id="usernameTip"></span>
-    </div>
+<div class="container">
+    <h1>用户注册</h1>
+    <form method="post" enctype="multipart/form-data" onsubmit="return validateForm(event)">
+        <div class="form-group">
+            <label for="yonghuming">用户名：</label>
+            <input type="text" id="yonghuming" name="yonghuming" required
+                   placeholder="4-16位字母或数字组合" onblur="checkUsername()">
+            <span id="usernameTip" class="tip"></span>
+        </div>
 
-    <div>
-        <label for="mima">密码：</label>
-        <input type="password" id="mima" name="mima" required>
-    </div>
+        <div class="form-group">
+            <label for="mima">密码：</label>
+            <input type="password" id="mima" name="mima" required
+                   placeholder="6-18位字母和数字组合" onblur="validatePassword()">
+            <span id="passwordTip" class="tip"></span>
+        </div>
 
-    <div>
-        <label for="xingming">姓名：</label>
-        <input type="text" id="xingming" name="xingming" required>
-    </div>
+        <div class="form-group">
+            <label for="xingming">姓名：</label>
+            <input type="text" id="xingming" name="xingming" required
+                   placeholder="请输入真实姓名">
+        </div>
 
-    <div>
-        <label for="touxiang">头像：</label>
-        <input type="file" id="touxiang" name="file" accept="image/*" required>
-    </div>
+        <div class="form-group">
+            <label for="touxiang">头像：</label>
+            <input type="file" id="touxiang" name="file" accept="image/*" required>
+        </div>
 
-    <div>
-        <label for="xingbie">性别：</label>
-        <select id="xingbie" name="xingbie" required>
-            <option value="">请选择</option>
-            <option value="男">男</option>
-            <option value="女">女</option>
-        </select>
-    </div>
+        <div class="form-group">
+            <label for="xingbie">性别：</label>
+            <select id="xingbie" name="xingbie" required>
+                <option value="">请选择</option>
+                <option value="男">男</option>
+                <option value="女">女</option>
+            </select>
+        </div>
 
-    <div>
-        <label for="zhiye">职业：</label>
-        <input type="text" id="zhiye" name="zhiye">
-    </div>
+        <div class="form-group">
+            <label for="zhiye">职业：</label>
+            <input type="text" id="zhiye" name="zhiye"
+                   placeholder="请输入您的职业">
+        </div>
 
-    <div>
-        <label for="lianxidianhua">联系电话：</label>
-        <input type="tel" id="lianxidianhua" name="lianxidianhua">
-    </div>
+        <div class="form-group">
+            <label for="lianxidianhua">联系电话：</label>
+            <input type="tel" id="lianxidianhua" name="lianxidianhua"
+                   placeholder="请输入11位手机号码" onblur="validatePhone()">
+            <span id="phoneTip" class="tip"></span>
+        </div>
 
-    <div>
-        <label for="shenfenzheng">身份证：</label>
-        <input type="text" id="shenfenzheng" name="shenfenzheng">
-    </div>
+        <div class="form-group">
+            <label for="shenfenzheng">身份证：</label>
+            <input type="text" id="shenfenzheng" name="shenfenzheng"
+                   placeholder="请输入18位身份证号码" onblur="validateIdCard()">
+            <span id="idCardTip" class="tip"></span>
+        </div>
 
-    <div>
-        <button type="submit">注册</button>
+        <div class="form-group">
+            <button type="submit">注册</button>
+        </div>
+    </form>
+    <div class="form-footer">
+        已有账号？<a href="login.html">立即登录</a>
     </div>
-</form>
+</div>
 </body>
 </html>
