@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>房主登录</title>
+</head>
+<body>
+<div id="app">
+    <h2>房主登录</h2>
+    <form @submit.prevent="login">
+        <div>
+            <label for="zhanghao">房主账号：</label>
+            <input type="text" id="zhanghao" v-model="zhanghao" required>
+        </div>
+        <div>
+            <label for="mima">密码：</label>
+            <input type="password" id="mima" v-model="mima" required>
+        </div>
+        <button type="submit">登录</button>
+    </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@3.2.31/dist/vue.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    const { createApp } = Vue;
+
+    createApp({
+        data() {
+            return {
+                id: '',
+                zhanghao: '',
+                mima: ''
+            }
+        },
+        methods: {
+            login() {
+                // 修正了axios请求的URL拼接问题
+                axios.get(`/Fangzhu/selectByZhanghao?zhanghao=${this.zhanghao}`)
+                    .then(response => {
+                        if (response.data.code === 200) {
+                            const user = response.data.data;
+                            console.log(user)
+                            // 验证密码
+                            if (user.mima === this.mima) {
+                                sessionStorage.clear();
+                                sessionStorage.setItem('Fangzhuid', user.id);//房主id存入session
+                                sessionStorage.setItem('Fangzhuzhanghao', user.fangzhuzhanghao);//房主账号存入session
+                                sessionStorage.setItem('Role', "Fangzhu");//身份信息存入session
+                                sessionStorage.setItem('UserName', user.fangzhuxingming)//房主姓名存入session
+                                console.log(user.fangzhuxingming)
+                                /**
+                                 *  logout() {
+                                 // 清除sessionStorage
+                                  sessionStorage.removeItem('userId');
+                                sessionStorage.removeItem('UserName');
+                                     }
+                                 */
+                                alert('登录成功');
+                                window.location.href = 'ManageFangwu.html';//登陆成功跳转接口
+                            } else {
+                                alert('密码错误');
+                            }
+                        } else {
+                            alert('用户不存在');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('登录失败:', error);
+                        alert('登录失败，请重试');
+                    });
+            }
+        }
+    }).mount('#app');
+</script>
+</body>
+</html>

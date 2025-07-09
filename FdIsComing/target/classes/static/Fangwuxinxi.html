@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>房屋信息展示</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+    <style>
+        .house-card {
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+        .house-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .house-img {
+            height: 200px;
+            object-fit: cover;
+        }
+        .price-tag {
+            font-size: 1.5rem;
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+        .status-available {
+            color: #20c997;
+        }
+        .status-rented {
+            color: #ff6b6b;
+        }
+        .filter-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            padding: 50px;
+        }
+    </style>
+</head>
+<body>
+<div id="app" class="container py-4">
+    <h1 class="text-center mb-4">房屋信息展示</h1>
+    <a href="AccountY.html" class="btn btn-primary btn-add">
+        <i class="bi bi-plus-circle"></i> 我的账户
+    </a>
+    <a href="MyReserve.html" class="btn btn-primary btn-add">
+        <i class="bi bi-plus-circle"></i> 我的预约
+    </a>
+
+    <!-- 筛选区域 -->
+    <div class="filter-section">
+        <div class="row">
+            <div class="col-md-3">
+                <label for="houseType" class="form-label">房屋类型</label>
+                <select id="houseType" class="form-select" v-model="filter.type">
+                    <option value="">全部类型</option>
+                    <option v-for="type in houseTypes" :value="type">{{type}}</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="rentType" class="form-label">租赁方式</label>
+                <select id="rentType" class="form-select" v-model="filter.rentType">
+                    <option value="">全部方式</option>
+                    <option value="整租">整租</option>
+                    <option value="合租">合租</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="priceRange" class="form-label">价格范围</label>
+                <select id="priceRange" class="form-select" v-model="filter.priceRange">
+                    <option value="">全部价格</option>
+                    <option value="0-1000">1000元以下</option>
+                    <option value="1000-2000">1000-2000元</option>
+                    <option value="2000-3000">2000-3000元</option>
+                    <option value="3000-5000">3000-5000元</option>
+                    <option value="5000-">5000元以上</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="rentStatus" class="form-label">租赁状态</label>
+                <select id="rentStatus" class="form-select" v-model="filter.rentStatus">
+                    <option value="">全部状态</option>
+                    <option value="可租">可租</option>
+                    <option value="已租">已租</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="search" class="form-label">搜索</label>
+                <input type="text" id="search" class="form-control" placeholder="输入小区或房屋名称..." v-model="filter.keyword">
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-12 d-flex justify-content-end">
+                <button class="btn btn-primary" @click="resetFilter">重置筛选</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载状态 -->
+    <div v-if="loading" class="loading-spinner">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">加载中...</span>
+        </div>
+    </div>
+
+    <!-- 房屋列表 -->
+    <div v-else>
+        <div v-if="filteredHouses.length === 0" class="alert alert-info">
+            没有找到符合条件的房屋信息
+        </div>
+
+        <div class="row">
+            <div class="col-md-4" v-for="house in filteredHouses" :key="house.id">
+                <div class="card house-card">
+                    <img :src="house.tupian" class="card-img-top house-img" :alt="house.fangwumingcheng">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ house.fangwumingcheng }}</h5>
+                        <p class="card-text text-muted">{{ house.xiaoqu }} · {{ house.xiangxidizhi }}</p>
+
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-secondary">{{ house.fangwuleixing }}</span>
+                            <span class="badge" :class="house.fangwuzhuangtai === '可租' ? 'bg-success' : 'bg-danger'">
+                                    {{ house.fangwuzhuangtai }}
+                                </span>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <span class="price-tag">¥{{ house.yuezujiage }}</span>
+                                <span class="text-muted">/月</span>
+                            </div>
+                            <small class="text-muted">押金: ¥{{ house.yajin }}</small>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">{{ house.chaoxianglouceng }}</span>
+                            <span class="text-muted">{{ house.mianji }}平</span>
+                        </div>
+
+                        <div class="mt-3">
+                            <button class="btn btn-outline-primary btn-sm" @click="showHouseDetail(house)">
+                                查看详情
+                            </button>
+                            <button class="btn btn-primary btn-sm ms-2" @click="reserveHouse(house)">
+                                预约看房
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 房屋详情模态框 -->
+    <div class="modal fade" id="houseDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ currentHouse.fangwumingcheng }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <img :src="currentHouse.tupian" class="img-fluid rounded mb-3" :alt="currentHouse.fangwumingcheng">
+                        </div>
+                        <div class="col-md-6">
+                            <h4 class="price-tag mb-3">¥{{ currentHouse.yuezujiage }} <small class="text-muted">/月</small></h4>
+
+                            <table class="table table-bordered">
+                                <tbody>
+                                <tr>
+                                    <th scope="row">小区</th>
+                                    <td>{{ currentHouse.xiaoqu }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">地址</th>
+                                    <td>{{ currentHouse.xiangxidizhi }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">类型</th>
+                                    <td>{{ currentHouse.fangwuleixing }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">租赁方式</th>
+                                    <td>{{ currentHouse.zulinfangshi }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">朝向楼层</th>
+                                    <td>{{ currentHouse.chaoxianglouceng }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">面积</th>
+                                    <td>{{ currentHouse.mianji }}平</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">状态</th>
+                                    <td>
+                                                <span :class="currentHouse.fangwuzhuangtai === '可租' ? 'status-available' : 'status-rented'">
+                                                    {{ currentHouse.fangwuzhuangtai }}
+                                                </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">押金</th>
+                                    <td>¥{{ currentHouse.yajin }}</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">房主</th>
+                                    <td>{{ currentHouse.fangzhuxingming }} ({{ currentHouse.fangzhuzhanghao }})</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">发布日期</th>
+                                    <td>{{ formatDate(currentHouse.faburiqi) }}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                            <h5 class="mt-4">房屋设施</h5>
+                            <div class="d-flex flex-wrap">
+                                    <span class="badge bg-light text-dark me-2 mb-2" v-for="facility in currentHouse.fangwusheshi.split(',')" :key="facility">
+                                        {{ facility }}
+                                    </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5 class="mt-4">房屋详情</h5>
+                    <div class="border p-3 rounded" v-html="currentHouse.fangwuxiangqing"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" @click="reserveHouse(currentHouse)" data-bs-dismiss="modal">
+                        预约看房
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 引入必要的JS库 -->
+<script src="https://cdn.jsdelivr.net/npm/vue@3.2.31/dist/vue.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    const { createApp } = Vue;
+
+    createApp({
+        data() {
+            return {
+                houses: [], // 所有房屋数据
+                loading: true, // 加载状态
+                filter: {
+                    type: '',
+                    rentType: '',
+                    priceRange: '',
+                    rentStatus: '',
+                    keyword: ''
+                },
+                currentHouse: { // 当前查看的房屋详情
+                    fangwumingcheng: '',
+                    fangwuleixing: '',
+                    tupian: '',
+                    zulinfangshi: '',
+                    chaoxianglouceng: '',
+                    mianji: '',
+                    fangwuzhuangtai: '',
+                    xiaoqu: '',
+                    xiangxidizhi: '',
+                    yuezujiage: 0,
+                    yajin: 0,
+                    fangwusheshi: '',
+                    fangwuxiangqing: '',
+                    faburiqi: new Date(),
+                    fangzhuzhanghao: '',
+                    fangzhuxingming: ''
+                },
+                houseDetailModal: null // 模态框实例
+            };
+        },
+        computed: {
+            // 获取所有房屋类型用于筛选
+            houseTypes() {
+                const types = new Set();
+                this.houses.forEach(house => {
+                    types.add(house.fangwuleixing);
+                });
+                return Array.from(types);
+            },
+            // 筛选后的房屋列表
+            filteredHouses() {
+                return this.houses.filter(house => {
+                    // 按房屋类型筛选
+                    if (this.filter.type && house.fangwuleixing !== this.filter.type) {
+                        return false;
+                    }
+                    // 按租赁方式筛选
+                    if (this.filter.rentType && house.zulinfangshi !== this.filter.rentType) {
+                        return false;
+                    }
+                    // 按租赁状态筛选
+                    if (this.filter.rentStatus && house.fangwuzhuangtai !== this.filter.rentStatus) {
+                        return false;
+                    }
+                    // 按价格范围筛选
+                    if (this.filter.priceRange) {
+                        const [min, max] = this.filter.priceRange.split('-');
+                        const price = house.yuezujiage;
+
+                        if (min && price < parseInt(min)) return false;
+                        if (max && price > parseInt(max)) return false;
+                    }
+                    // 按关键词筛选
+                    if (this.filter.keyword) {
+                        const keyword = this.filter.keyword.toLowerCase();
+                        if (!house.fangwumingcheng.toLowerCase().includes(keyword) &&
+                            !house.xiaoqu.toLowerCase().includes(keyword)) {
+                            return false;
+                        }
+                    }
+                    return true;
+                });
+            }
+        },
+        methods: {
+            // 获取房屋数据
+            fetchHouses() {
+                this.loading = true;
+                axios.get('Fangwuxinxi/selectAll')
+                    .then(response => {
+                        if (response.data.code === 200 && response.data.message === 'OK') {
+                            this.houses = response.data.data;
+                        } else {
+                            console.error('获取房屋信息失败:', response.data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('请求房屋信息出错:', error);
+                    })
+                    .finally(() => {
+                        this.loading = false;
+                    });
+            },
+            // 显示房屋详情
+            showHouseDetail(house) {
+                this.currentHouse = { ...house };
+                this.houseDetailModal.show();
+            },
+            // 预约看房
+            reserveHouse(house) {
+                //alert(`您已预约 ${house.fangwumingcheng} 的看房，房主 ${house.fangzhuxingming} 会尽快与您联系！`);
+                // 这里可以添加实际的预约逻辑
+                sessionStorage.setItem('reservedHouse', JSON.stringify(house));
+                window.location.href = "ReserveHouse.html";
+            },
+            // 重置筛选条件
+            resetFilter() {
+                this.filter = {
+                    type: '',
+                    rentType: '',
+                    priceRange: '',
+                    rentStatus: '',
+                    keyword: ''
+                };
+            },
+            // 格式化日期
+            formatDate(dateStr) {
+                if (!dateStr) return '';
+                const date = new Date(dateStr);
+                return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
+            }
+        },
+        mounted() {
+            // 初始化模态框
+            this.houseDetailModal = new bootstrap.Modal(document.getElementById('houseDetailModal'));
+            // 获取房屋数据
+            this.fetchHouses();
+        }
+    }).mount('#app');
+</script>
+</body>
+</html>

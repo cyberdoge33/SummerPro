@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>添加房屋信息</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        form {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        .inline-group {
+            display: flex;
+            gap: 10px;
+        }
+        .inline-group > div {
+            flex: 1;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            display: block;
+            margin: 20px auto 0;
+            width: 100%;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .message {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .error {
+            background: #ffdddd;
+            color: #d8000c;
+        }
+        .success {
+            background: #ddffdd;
+            color: #4F8A10;
+        }
+        .readonly-field {
+            background-color: #f0f0f0;
+            cursor: not-allowed;
+        }
+        .required-field::after {
+            content: " *";
+            color: red;
+        }
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .back-button {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+        }
+        .back-button:hover {
+            background: #5a6268;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <div class="header-container">
+        <a href="ManageFangwu.html" class="back-button">返回管理页面</a>
+        <h1>添加房屋信息</h1>
+        <div style="width: 100px;"></div> <!-- 用于平衡布局 -->
+    </div>
+
+    <form @submit.prevent="submitForm">
+        <div class="form-group">
+            <label class="required-field">房屋名称:</label>
+            <input type="text" v-model="form.fangwumingcheng" required>
+        </div>
+
+        <div class="form-group">
+            <label class="required-field">房屋类型:</label>
+            <div class="inline-group">
+                <div>
+                    <select v-model="form.fangwuleixing_shi" required>
+                        <option value="">室</option>
+                        <option value="1室">1室</option>
+                        <option value="2室">2室</option>
+                        <option value="3室">3室</option>
+                        <option value="4室">4室</option>
+                        <option value="5室及以上">5室及以上</option>
+                    </select>
+                </div>
+                <div>
+                    <select v-model="form.fangwuleixing_ting" required>
+                        <option value="">厅</option>
+                        <option value="0厅">0厅</option>
+                        <option value="1厅">1厅</option>
+                        <option value="2厅">2厅</option>
+                        <option value="3厅">3厅</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="required-field">图片:</label>
+            <input type="file" @change="handleFileUpload" accept="image/*" required>
+        </div>
+
+        <div class="form-group">
+            <label class="required-field">租赁方式:</label>
+            <select v-model="form.zulinfangshi" required>
+                <option value="">请选择</option>
+                <option value="整租">整租</option>
+                <option value="合租">合租</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="required-field">房屋状态:</label>
+            <select v-model="form.fangwuzhuangtai" required>
+                <option value="">请选择</option>
+                <option value="可租">可租</option>
+                <option value="已租">已租</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="required-field">月租价格(元):</label>
+            <input type="number" v-model.number="form.yuezujiage" min="0" required @input="validateNumber('yuezujiage')">
+        </div>
+
+        <div class="form-group">
+            <label class="required-field">押金(元):</label>
+            <input type="number" v-model.number="form.yajin" min="0" required @input="validateNumber('yajin')">
+        </div>
+
+        <div class="form-group">
+            <label class="required-field">朝向/楼层:</label>
+            <div class="inline-group">
+                <div>
+                    <select v-model="form.chaoxiang" required>
+                        <option value="">朝向</option>
+                        <option value="南北">南北</option>
+                        <option value="东西">东西</option>
+                    </select>
+                </div>
+                <div>
+                    <input type="text" v-model="form.louceng" placeholder="楼层" required @input="validateFloor">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="required-field">面积(m²):</label>
+            <input type="text" v-model="form.mianji" required @input="validateArea">
+        </div>
+
+        <div class="form-group">
+            <label class="required-field">小区:</label>
+            <input type="text" v-model="form.xiaoqu" required>
+        </div>
+
+        <div class="form-group">
+            <label class="required-field">详细地址:</label>
+            <input type="text" v-model="form.xiangxidizhi" required>
+        </div>
+
+        <div class="form-group">
+            <label class="required-field">房屋设施:</label>
+            <input type="text" v-model="form.fangwusheshi" placeholder="多个设施用逗号分隔" required>
+        </div>
+
+        <div class="form-group">
+            <label class="required-field">房屋详情:</label>
+            <textarea v-model="form.fangwuxiangqing" rows="4" required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label class="required-field">房主账号:</label>
+            <input type="text" v-model="form.fangzhuzhanghao" :class="{ 'readonly-field': isLoggedIn }" :readonly="isLoggedIn" required>
+        </div>
+
+        <div class="form-group">
+            <label class="required-field">房主姓名:</label>
+            <input type="text" v-model="form.fangzhuxingming" :class="{ 'readonly-field': isLoggedIn }" :readonly="isLoggedIn" required>
+        </div>
+
+        <button type="submit">提交</button>
+    </form>
+
+    <div v-if="message" class="message" :class="{error: isError, success: !isError}">{{ message }}</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@3.2.31/dist/vue.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<script>
+    const { createApp } = Vue;
+
+    createApp({
+        data() {
+            return {
+                form: {
+                    fangwumingcheng: '',
+                    fangwuleixing_shi: '',
+                    fangwuleixing_ting: '',
+                    tupian: null,
+                    zulinfangshi: '',
+                    fangwuzhuangtai: '',
+                    chaoxiang: '',
+                    louceng: '',
+                    mianji: '',
+                    yuezujiage: null,
+                    xiaoqu: '',
+                    xiangxidizhi: '',
+                    yajin: null,
+                    fangwusheshi: '',
+                    fangwuxiangqing: '',
+                    fangzhuzhanghao: '',
+                    fangzhuxingming: ''
+                },
+                message: '',
+                isError: false,
+                isLoggedIn: false
+            };
+        },
+        created() {
+            this.checkLoginStatus();
+        },
+        methods: {
+            checkLoginStatus() {
+                const fangzhuId = sessionStorage.getItem('Fangzhuid');
+                const fangzhuzhanghao = sessionStorage.getItem('Fangzhuzhanghao');
+                const role = sessionStorage.getItem('Role');
+                const fangzhuName = sessionStorage.getItem('UserName');
+
+                if (fangzhuId && role === 'Fangzhu' && fangzhuName) {
+                    this.isLoggedIn = true;
+                    this.form.fangzhuzhanghao = fangzhuzhanghao;
+                    this.form.fangzhuxingming = fangzhuName;
+                } else {
+                    sessionStorage.clear();
+                    window.location.href = 'LoginF.html';
+                }
+            },
+
+            handleFileUpload(event) {
+                this.form.tupian = event.target.files[0];
+            },
+
+            validateNumber(field) {
+                if (this.form[field] < 0) {
+                    this.showMessage(`${field === 'yuezujiage' ? '月租价格' : '押金'}不能为负数`, true);
+                    this.form[field] = 0;
+                }
+            },
+
+            validateFloor() {
+                this.form.louceng = this.form.louceng.replace(/[^\d层]/g, '');
+                if (this.form.louceng && !/^\d+层?$/.test(this.form.louceng)) {
+                    this.showMessage('楼层格式不正确，请输入如"5层"或"5"', true);
+                }
+            },
+
+            validateArea() {
+                this.form.mianji = this.form.mianji.replace(/[^\d.]/g, '');
+                if (this.form.mianji && !/^\d+(\.\d{1,2})?$/.test(this.form.mianji)) {
+                    this.showMessage('面积格式不正确，请输入如"85"或"85.5"', true);
+                }
+            },
+
+            showMessage(msg, isError = false) {
+                this.message = msg;
+                this.isError = isError;
+                setTimeout(() => {
+                    this.message = '';
+                    this.isError = false;
+                }, 3000);
+            },
+
+            async submitForm() {
+                if (!this.isLoggedIn) {
+                    this.showMessage('登录状态已失效，请重新登录', true);
+                    window.location.href = 'LoginF.html';
+                    return;
+                }
+
+                // 检查所有必填项是否已填写
+                if (!this.form.fangwumingcheng || !this.form.fangwuleixing_shi || !this.form.fangwuleixing_ting ||
+                    !this.form.tupian || !this.form.zulinfangshi || !this.form.fangwuzhuangtai ||
+                    !this.form.yuezujiage || !this.form.yajin || !this.form.chaoxiang ||
+                    !this.form.louceng || !this.form.mianji || !this.form.xiaoqu ||
+                    !this.form.xiangxidizhi || !this.form.fangwusheshi || !this.form.fangwuxiangqing ||
+                    !this.form.fangzhuzhanghao || !this.form.fangzhuxingming) {
+                    this.showMessage('请填写所有必填项', true);
+                    return;
+                }
+
+                try {
+                    const formData = new FormData();
+                    this.form.fangwuleixing = `${this.form.fangwuleixing_shi}${this.form.fangwuleixing_ting}`;
+                    this.form.chaoxianglouceng = `${this.form.chaoxiang}${this.form.chaoxiang && this.form.louceng ? '/' : ''}${this.form.louceng}`;
+
+                    Object.keys(this.form).forEach(key => {
+                        if (key === 'tupian' && this.form.tupian) {
+                            formData.append('file', this.form.tupian);
+                        } else if (this.form[key] !== null && this.form[key] !== '' && this.form[key] !== undefined) {
+                            formData.append(key, this.form[key]);
+                        }
+                    });
+
+                    const response = await axios.post(
+                        'http://localhost:8091/Fangwuxinxi/addFangwuxinxi',
+                        formData,
+                        {
+                            headers: {
+                                'Content-Type': 'multipart/form-data'
+                            }
+                        }
+                    );
+
+                    if (response.data.code === 200) {
+                        this.showMessage('房屋信息添加成功！即将跳转到管理页面...');
+                        setTimeout(() => {
+                            window.location.href = 'ManageFangwu.html';
+                        }, 2000);
+                    } else {
+                        this.showMessage(response.data.message || '添加失败，请重试', true);
+                    }
+
+                } catch (error) {
+                    console.error('请求出错:', error);
+                    this.showMessage(error.response?.data?.message || '提交失败，请检查数据后重试', true);
+                }
+            }
+        }
+    }).mount('#app');
+</script>
+</body>
+</html>

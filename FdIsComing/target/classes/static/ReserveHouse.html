@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>预约看房</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+<h1>预约看房</h1>
+<form id="reserveForm">
+    <!-- 房屋信息 -->
+    <div>
+        <label>房屋名称:</label>
+        <input type="text" id="fangwumingcheng" readonly>
+    </div>
+    <div>
+        <label>房屋类型:</label>
+        <input type="text" id="fangwuleixing" readonly>
+    </div>
+    <div>
+        <label>房屋状态:</label>
+        <input type="text" id="fangwuzhuangtai" readonly>
+    </div>
+    <div>
+        <label>小区:</label>
+        <input type="text" id="xiaoqu" readonly>
+    </div>
+    <div>
+        <label>月租价格:</label>
+        <input type="text" id="yuezujiage" readonly>
+    </div>
+    <div>
+        <label>押金:</label>
+        <input type="text" id="yajin" readonly>
+    </div>
+
+    <!-- 用户输入 -->
+    <div>
+        <label>租用月数:</label>
+        <input type="number" id="zuyongyueshu" required min="1">
+    </div>
+    <div>
+        <label>租用金额:</label>
+        <input type="text" id="zuyongjine" readonly>
+    </div>
+    <div>
+        <label>预约日期:</label>
+        <input type="date" id="yuyueshijian" required>
+    </div>
+
+    <!-- 用户信息 -->
+    <div>
+        <label>用户名:</label>
+        <input type="text" id="yonghuming" readonly>
+    </div>
+    <div>
+        <label>姓名:</label>
+        <input type="text" id="xingming" readonly>
+    </div>
+    <div>
+        <label>身份证:</label>
+        <input type="text" id="shenfenzheng" readonly>
+    </div>
+    <div>
+        <label>联系电话:</label>
+        <input type="text" id="lianxidianhua" readonly>
+    </div>
+
+    <!-- 房主信息 -->
+    <div>
+        <label>房主账号:</label>
+        <input type="text" id="fangzhuzhanghao" readonly>
+    </div>
+    <div>
+        <label>房主姓名:</label>
+        <input type="text" id="fangzhuxingming" readonly>
+    </div>
+
+    <button type="button" onclick="submitReservation()">提交预约</button>
+</form>
+
+<div id="errorMessage" style="color:red;"></div>
+
+<script>
+    // 页面加载时初始化数据
+    document.addEventListener('DOMContentLoaded', function() {
+        // 从sessionStorage获取房屋信息
+        const house = JSON.parse(sessionStorage.getItem('reservedHouse') || '{}');
+
+        // 填充房屋信息
+        document.getElementById('fangwumingcheng').value = house.fangwumingcheng || '';
+        document.getElementById('fangwuleixing').value = house.fangwuleixing || '';
+        document.getElementById('fangwuzhuangtai').value = house.fangwuzhuangtai || '';
+        document.getElementById('xiaoqu').value = house.xiaoqu || '';
+        document.getElementById('yuezujiage').value = house.yuezujiage || '';
+        document.getElementById('yajin').value = house.yajin || '';
+        document.getElementById('fangzhuzhanghao').value = house.fangzhuzhanghao || '';
+        document.getElementById('fangzhuxingming').value = house.fangzhuxingming || '';
+
+        // 计算租用金额
+        document.getElementById('zuyongyueshu').addEventListener('input', function() {
+            const months = parseInt(this.value) || 0;
+            const price = parseInt(house.yuezujiage) || 0;
+            document.getElementById('zuyongjine').value = (months * price).toString();
+        });
+
+        // 填充用户信息
+        document.getElementById('yonghuming').value = sessionStorage.getItem('Yonghuming') || '';
+        document.getElementById('xingming').value = sessionStorage.getItem('Xingming') || '';
+        document.getElementById('shenfenzheng').value = sessionStorage.getItem('Shenfenzheng') || '';
+        document.getElementById('lianxidianhua').value = sessionStorage.getItem('Lianxidianhua') || '';
+
+        // 设置默认预约时间为明天
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        document.getElementById('yuyueshijian').value = tomorrow.toISOString().split('T')[0];
+    });
+
+    // 生成预约编号 (时间戳+随机数)
+    function generateReservationNumber() {
+        const timestamp = new Date().getTime();
+        const randomNum = Math.floor(Math.random() * 1000);
+        return `YY${timestamp}${randomNum}`;
+    }
+
+    // 提交预约
+    async function submitReservation() {
+        const errorElement = document.getElementById('errorMessage');
+        errorElement.textContent = '';
+
+        try {
+            // 验证表单
+            const months = parseInt(document.getElementById('zuyongyueshu').value);
+            if (isNaN(months) || months < 1) {
+                throw new Error('请输入有效的租用月数');
+            }
+
+            const yuyueshijian = document.getElementById('yuyueshijian').value;
+            if (!yuyueshijian) {
+                throw new Error('请选择预约日期');
+            }
+
+            // 准备数据
+            const reservation = {
+                yuyuebianhao: generateReservationNumber(),
+                fangwumingcheng: document.getElementById('fangwumingcheng').value,
+                fangwuleixing: document.getElementById('fangwuleixing').value,
+                fangwuzhuangtai: document.getElementById('fangwuzhuangtai').value,
+                xiaoqu: document.getElementById('xiaoqu').value,
+                yuezujiage: parseInt(document.getElementById('yuezujiage').value) || 0,
+                yajin: document.getElementById('yajin').value,
+                zuyongyueshu: months,
+                zuyongjine: document.getElementById('zuyongjine').value,
+                yuyueshijian: yuyueshijian, // 直接使用YYYY-MM-DD格式
+                yonghuming: document.getElementById('yonghuming').value,
+                xingming: document.getElementById('xingming').value,
+                shenfenzheng: document.getElementById('shenfenzheng').value,
+                lianxidianhua: document.getElementById('lianxidianhua').value,
+                fangzhuzhanghao: document.getElementById('fangzhuzhanghao').value,
+                fangzhuxingming: document.getElementById('fangzhuxingming').value,
+                sfsh: '预约中',
+                shhf: ''
+            };
+
+            console.log('准备提交的数据:', reservation);
+
+            // 创建FormData
+            const formData = new FormData();
+            for (const key in reservation) {
+                if (reservation[key] !== null && reservation[key] !== undefined) {
+                    formData.append(key, reservation[key]);
+                }
+            }
+
+            // 发送请求
+            const response = await axios.post('/Yuyuekanfang/addYuyuekanfang', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+
+            console.log('服务器响应:', response.data);
+
+            if (response.data && response.data.code === 200) {
+                alert('预约成功！');
+                window.location.href = 'Fangwuxinxi.html';
+            } else {
+                throw new Error(response.data.message || '预约失败');
+            }
+        } catch (error) {
+            console.error('完整错误信息:', error);
+            if (error.response) {
+                console.error('响应数据:', error.response.data);
+                errorElement.textContent = `服务器错误: ${error.response.data.message || error.response.status}`;
+            } else {
+                errorElement.textContent = `错误: ${error.message}`;
+            }
+        }
+    }
+</script>
+</body>
+</html>

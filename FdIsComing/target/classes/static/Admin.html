@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员后台</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+<h1>管理员后台</h1>
+
+<!-- 功能切换按钮 -->
+<div>
+    <button id="fangzhuBtn" onclick="showFangzhu()">管理房主信息</button>
+    <button id="userBtn" onclick="showUser()">管理用户信息</button>
+    <button id="logoutBtn" onclick="logout()">退出</button>
+</div>
+
+<!-- 房主信息管理区域 -->
+<div id="fangzhuSection">
+    <h2>房主信息管理</h2>
+    <div id="fangzhuList">
+        <!-- 房主列表将在这里动态生成 -->
+    </div>
+</div>
+
+<!-- 用户信息管理区域 -->
+<div id="userSection" style="display:none;">
+    <h2>用户信息管理</h2>
+    <div id="userList">
+        <!-- 用户列表将在这里动态生成 -->
+    </div>
+</div>
+
+<!-- 修改房主信息的模态框 -->
+<div id="editFangzhuModal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:20px;border:1px solid #ccc;">
+    <h2>修改房主信息</h2>
+    <form id="editFangzhuForm">
+        <input type="hidden" id="editFangzhuId">
+        <div>
+            <label>房主账号：</label>
+            <input type="text" id="editFangzhuZhanghao" readonly>
+        </div>
+        <div>
+            <label>房主姓名：</label>
+            <input type="text" id="editFangzhuXingming">
+        </div>
+        <div>
+            <label>性别：</label>
+            <select id="editFangzhuXingbie">
+                <option value="男">男</option>
+                <option value="女">女</option>
+            </select>
+        </div>
+        <div>
+            <label>手机号：</label>
+            <input type="text" id="editFangzhuShouji">
+        </div>
+        <div>
+            <label>身份证：</label>
+            <input type="text" id="editFangzhuShenfenzheng">
+        </div>
+        <div>
+            <label>新密码：</label>
+            <input type="password" id="editFangzhuMima" placeholder="留空则不修改">
+        </div>
+        <div>
+            <button type="button" onclick="closeModal('editFangzhuModal')">取消</button>
+            <button type="button" onclick="submitFangzhuUpdate()">提交</button>
+        </div>
+    </form>
+</div>
+
+<!-- 修改用户信息的模态框 -->
+<div id="editUserModal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:20px;border:1px solid #ccc;">
+    <h2>修改用户信息</h2>
+    <form id="editUserForm">
+        <input type="hidden" id="editUserId">
+        <div>
+            <label>用户名：</label>
+            <input type="text" id="editUserYonghuming" readonly>
+        </div>
+        <div>
+            <label>姓名：</label>
+            <input type="text" id="editUserXingming">
+        </div>
+        <div>
+            <label>性别：</label>
+            <select id="editUserXingbie">
+                <option value="男">男</option>
+                <option value="女">女</option>
+            </select>
+        </div>
+        <div>
+            <label>职业：</label>
+            <input type="text" id="editUserZhiye">
+        </div>
+        <div>
+            <label>手机号：</label>
+            <input type="text" id="editUserLianxidianhua">
+        </div>
+        <div>
+            <label>身份证：</label>
+            <input type="text" id="editUserShenfenzheng">
+        </div>
+        <div>
+            <label>新密码：</label>
+            <input type="password" id="editUserMima" placeholder="留空则不修改">
+        </div>
+        <div>
+            <button type="button" onclick="closeModal('editUserModal')">取消</button>
+            <button type="button" onclick="submitUserUpdate()">提交</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // 页面加载时检查管理员权限并加载房主数据
+    window.onload = function() {
+        const role = sessionStorage.getItem("Role");
+        if (role !== "Guanliyuan") {
+            alert('无权限访问，请先登录');
+            window.location.href = "Index.html";
+            return;
+        }
+        loadFangzhuData();
+    };
+
+
+    // 显示房主管理区域
+    function showFangzhu() {
+        document.getElementById('fangzhuSection').style.display = 'block';
+        document.getElementById('userSection').style.display = 'none';
+    }
+
+    // 显示用户管理区域
+    function showUser() {
+        document.getElementById('fangzhuSection').style.display = 'none';
+        document.getElementById('userSection').style.display = 'block';
+        loadUserData();
+    }
+
+    // 加载房主数据
+    function loadFangzhuData() {
+        axios.get('http://localhost:8091/Fangzhu/selectAll')
+            .then(response => {
+                if (response.data.code === 200) {
+                    displayFangzhuList(response.data.data);
+                } else {
+                    alert('获取房主数据失败: ' + response.data.message);
+                }
+            })
+            .catch(error => {
+                alert('获取房主数据出错: ' + error.message);
+            });
+    }
+
+    // 加载用户数据
+    function loadUserData() {
+        axios.get('http://localhost:8091/Yonghu/selectAll')
+            .then(response => {
+                if (response.data.code === 200) {
+                    displayUserList(response.data.data);
+                } else {
+                    alert('获取用户数据失败: ' + response.data.message);
+                }
+            })
+            .catch(error => {
+                alert('获取用户数据出错: ' + error.message);
+            });
+    }
+
+    // 显示房主列表
+    function displayFangzhuList(fangzhuList) {
+        const container = document.getElementById('fangzhuList');
+        container.innerHTML = '';
+
+        if (fangzhuList.length === 0) {
+            container.innerHTML = '<p>没有房主数据</p>';
+            return;
+        }
+
+        const table = document.createElement('table');
+        table.border = '1';
+
+        // 表头
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+        const headers = ['房主账号', '姓名', '性别', '手机号', '身份证', '操作'];
+
+        headers.forEach(headerText => {
+            const th = document.createElement('th');
+            th.textContent = headerText;
+            headerRow.appendChild(th);
+        });
+
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        // 表体
+        const tbody = document.createElement('tbody');
+
+        fangzhuList.forEach(fangzhu => {
+            const row = document.createElement('tr');
+
+            // 房主账号
+            const zhanghaoCell = document.createElement('td');
+            zhanghaoCell.textContent = fangzhu.fangzhuzhanghao;
+            row.appendChild(zhanghaoCell);
+
+            // 姓名
+            const xingmingCell = document.createElement('td');
+            xingmingCell.textContent = fangzhu.fangzhuxingming;
+            row.appendChild(xingmingCell);
+
+            // 性别
+            const xingbieCell = document.createElement('td');
+            xingbieCell.textContent = fangzhu.xingbie;
+            row.appendChild(xingbieCell);
+
+            // 手机号
+            const shoujiCell = document.createElement('td');
+            shoujiCell.textContent = fangzhu.shouji;
+            row.appendChild(shoujiCell);
+
+            // 身份证
+            const shenfenzhengCell = document.createElement('td');
+            shenfenzhengCell.textContent = fangzhu.shenfenzheng;
+            row.appendChild(shenfenzhengCell);
+
+            // 操作
+            const actionCell = document.createElement('td');
+
+            // 编辑按钮
+            const editBtn = document.createElement('button');
+            editBtn.textContent = '编辑';
+            editBtn.onclick = () => openFangzhuEditModal(fangzhu);
+            actionCell.appendChild(editBtn);
+
+            // 删除按钮
+            const deleteBtn = document.createElement('button');
+            deleteBtn.textContent = '删除';
+            deleteBtn.onclick = () => deleteFangzhu(fangzhu.id);
+            actionCell.appendChild(deleteBtn);
+
+            row.appendChild(actionCell);
+
+            tbody.appendChild(row);
+        });
+
+        table.appendChild(tbody);
+        container.appendChild(table);
+    }
+
+    // 显示用户列表
+    function displayUserList(userList) {
+        const container = document.getElementById('userList');
+        container.innerHTML = '';
+
+        if (userList.length === 0) {
+            container.innerHTML = '<p>没有用户数据</p>';
+            return;
+        }
+
+        const table = document.createElement('table');
+        table.border = '1';
+
+        // 表头
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+        const headers = ['用户名', '姓名', '性别', '职业', '手机号', '身份证', '操作'];
+
+        headers.forEach(headerText => {
+            const th = document.createElement('th');
+            th.textContent = headerText;
+            headerRow.appendChild(th);
+        });
+
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        // 表体
+        const tbody = document.createElement('tbody');
+
+        userList.forEach(user => {
+            const row = document.createElement('tr');
+
+            // 用户名
+            const yonghumingCell = document.createElement('td');
+            yonghumingCell.textContent = user.yonghuming;
+            row.appendChild(yonghumingCell);
+
+            // 姓名
+            const xingmingCell = document.createElement('td');
+            xingmingCell.textContent = user.xingming;
+            row.appendChild(xingmingCell);
+
+            // 性别
+            const xingbieCell = document.createElement('td');
+            xingbieCell.textContent = user.xingbie;
+            row.appendChild(xingbieCell);
+
+            // 职业
+            const zhiyeCell = document.createElement('td');
+            zhiyeCell.textContent = user.zhiye;
+            row.appendChild(zhiyeCell);
+
+            // 手机号
+            const lianxidianhuaCell = document.createElement('td');
+            lianxidianhuaCell.textContent = user.lianxidianhua;
+            row.appendChild(lianxidianhuaCell);
+
+            // 身份证
+            const shenfenzhengCell = document.createElement('td');
+            shenfenzhengCell.textContent = user.shenfenzheng;
+            row.appendChild(shenfenzhengCell);
+
+            // 操作
+            const actionCell = document.createElement('td');
+
+            // 编辑按钮
+            const editBtn = document.createElement('button');
+            editBtn.textContent = '编辑';
+            editBtn.onclick = () => openUserEditModal(user);
+            actionCell.appendChild(editBtn);
+
+            // 删除按钮
+            const deleteBtn = document.createElement('button');
+            deleteBtn.textContent = '删除';
+            deleteBtn.onclick = () => deleteUser(user.id);
+            actionCell.appendChild(deleteBtn);
+
+            row.appendChild(actionCell);
+
+            tbody.appendChild(row);
+        });
+
+        table.appendChild(tbody);
+        container.appendChild(table);
+    }
+
+    // 打开房主编辑模态框
+    function openFangzhuEditModal(fangzhu) {
+        document.getElementById('editFangzhuId').value = fangzhu.id;
+        document.getElementById('editFangzhuZhanghao').value = fangzhu.fangzhuzhanghao;
+        document.getElementById('editFangzhuXingming').value = fangzhu.fangzhuxingming;
+        document.getElementById('editFangzhuXingbie').value = fangzhu.xingbie;
+        document.getElementById('editFangzhuShouji').value = fangzhu.shouji;
+        document.getElementById('editFangzhuShenfenzheng').value = fangzhu.shenfenzheng;
+        document.getElementById('editFangzhuMima').value = '';
+        document.getElementById('editFangzhuModal').style.display = 'block';
+    }
+
+    // 打开用户编辑模态框
+    function openUserEditModal(user) {
+        document.getElementById('editUserId').value = user.id;
+        document.getElementById('editUserYonghuming').value = user.yonghuming;
+        document.getElementById('editUserXingming').value = user.xingming;
+        document.getElementById('editUserXingbie').value = user.xingbie;
+        document.getElementById('editUserZhiye').value = user.zhiye;
+        document.getElementById('editUserLianxidianhua').value = user.lianxidianhua;
+        document.getElementById('editUserShenfenzheng').value = user.shenfenzheng;
+        document.getElementById('editUserMima').value = '';
+        document.getElementById('editUserModal').style.display = 'block';
+    }
+
+    // 关闭模态框
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    // 提交房主信息修改
+    function submitFangzhuUpdate() {
+        const formData = new FormData();
+        formData.append('id', document.getElementById('editFangzhuId').value);
+        formData.append('fangzhuzhanghao', document.getElementById('editFangzhuZhanghao').value);
+        formData.append('fangzhuxingming', document.getElementById('editFangzhuXingming').value);
+        formData.append('xingbie', document.getElementById('editFangzhuXingbie').value);
+        formData.append('shouji', document.getElementById('editFangzhuShouji').value);
+        formData.append('shenfenzheng', document.getElementById('editFangzhuShenfenzheng').value);
+
+        const newPassword = document.getElementById('editFangzhuMima').value;
+        if (newPassword) {
+            formData.append('mima', newPassword);
+        }
+
+        axios.post('http://localhost:8091/Fangzhu/update', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
+            .then(response => {
+                if (response.data.code === 200) {
+                    alert('修改成功');
+                    closeModal('editFangzhuModal');
+                    loadFangzhuData(); // 重新加载数据
+                } else {
+                    alert('修改失败: ' + response.data.message);
+                }
+            })
+            .catch(error => {
+                alert('修改出错: ' + error.message);
+            });
+    }
+    //退出登录
+    function logout() {
+        // 清除所有sessionStorage
+        sessionStorage.clear();
+        // 跳转到首页
+        window.location.href = 'Index.html';
+    };
+    // 提交用户信息修改
+    function submitUserUpdate() {
+        const formData = new FormData();
+        formData.append('id', document.getElementById('editUserId').value);
+        formData.append('yonghuming', document.getElementById('editUserYonghuming').value);
+        formData.append('xingming', document.getElementById('editUserXingming').value);
+        formData.append('xingbie', document.getElementById('editUserXingbie').value);
+        formData.append('zhiye', document.getElementById('editUserZhiye').value);
+        formData.append('lianxidianhua', document.getElementById('editUserLianxidianhua').value);
+        formData.append('shenfenzheng', document.getElementById('editUserShenfenzheng').value);
+
+        const newPassword = document.getElementById('editUserMima').value;
+        if (newPassword) {
+            formData.append('mima', newPassword);
+        }
+
+        axios.post('http://localhost:8091/Yonghu/update', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
+            .then(response => {
+                if (response.data.code === 200) {
+                    alert('修改成功');
+                    closeModal('editUserModal');
+                    loadUserData(); // 重新加载数据
+                } else {
+                    alert('修改失败: ' + response.data.message);
+                }
+            })
+            .catch(error => {
+                alert('修改出错: ' + error.message);
+            });
+    }
+
+    // 删除房主
+    function deleteFangzhu(id) {
+        if (!confirm('确定要删除这个房主吗？此操作不可恢复！')) {
+            return;
+        }
+
+        axios.delete(`http://localhost:8091/Fangzhu/delete?id=${id}`)
+            .then(response => {
+                if (response.data.code === 200) {
+                    alert('删除成功');
+                    loadFangzhuData(); // 重新加载数据
+                } else {
+                    alert('删除失败: ' + response.data.message);
+                }
+            })
+            .catch(error => {
+                alert('删除出错: ' + error.message);
+            });
+    }
+
+    // 删除用户
+    function deleteUser(id) {
+        if (!confirm('确定要删除这个用户吗？此操作不可恢复！')) {
+            return;
+        }
+
+        axios.delete(`http://localhost:8091/Yonghu/delete?id=${id}`)
+            .then(response => {
+                if (response.data.code === 200) {
+                    alert('删除成功');
+                    loadUserData(); // 重新加载数据
+                } else {
+                    alert('删除失败: ' + response.data.message);
+                }
+            })
+            .catch(error => {
+                alert('删除出错: ' + error.message);
+            });
+    }
+</script>
+</body>
+</html>

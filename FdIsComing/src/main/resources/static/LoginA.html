@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理员登录</title>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+<h1>管理员登录</h1>
+
+<form id="loginForm">
+  <div>
+    <label>用户名：</label>
+    <input type="text" id="username" required>
+  </div>
+  <div>
+    <label>密码：</label>
+    <input type="password" id="password" required>
+  </div>
+  <div>
+    <button type="button" onclick="login()">登录</button>
+  </div>
+</form>
+
+<script>
+  // 登录函数
+  function login() {
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    if (!username || !password) {
+      alert('请输入用户名和密码');
+      return;
+    }
+
+    // 查询用户信息
+    axios.get(`http://localhost:8091/Users/selectByUsername?username=${username}`)
+            .then(response => {
+              if (response.data.code === 200 && response.data.data) {
+                const user = response.data.data;
+
+                // 验证密码和角色
+                if (user.password === password && user.role === '管理员') {
+                  // 存储角色信息到sessionStorage
+                  sessionStorage.clear();
+                  sessionStorage.setItem("Role", "Guanliyuan");
+                  sessionStorage.setItem("Username", username);
+
+                  // 跳转到管理员页面
+                  window.location.href = "Admin.html";
+                } else {
+                  alert('用户名或密码错误，或不是管理员账号');
+                }
+              } else {
+                alert('用户不存在');
+              }
+            })
+            .catch(error => {
+              alert('登录出错: ' + error.message);
+            });
+  }
+
+  // 监听回车键
+  document.getElementById('password').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      login();
+    }
+  });
+</script>
+</body>
+</html>

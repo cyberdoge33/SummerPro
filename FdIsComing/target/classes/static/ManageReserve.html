@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>房主预约管理</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+<h1>房主预约管理</h1>
+<a href="ManageFangwu.html" class="btn btn-primary btn-add">
+    <i class="bi bi-plus-circle"></i> 返回
+</a>
+<div id="reservationList">
+    <!-- 预约列表将在这里动态生成 -->
+</div>
+
+<!-- 修改预约状态的模态框 -->
+<div id="editModal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:20px;border:1px solid #ccc;">
+    <h2>修改预约状态</h2>
+    <form id="editForm">
+        <input type="hidden" id="editId">
+        <div>
+            <label>状态：</label>
+            <select id="editSfsh">
+                <option value="预约中">预约中</option>
+                <option value="预约成功">预约成功</option>
+                <option value="预约失败">预约失败</option>
+            </select>
+        </div>
+        <div>
+            <label>审核回复：</label>
+            <textarea id="editShhf" rows="3" cols="30"></textarea>
+        </div>
+        <div>
+            <button type="button" onclick="closeModal()">取消</button>
+            <button type="button" onclick="submitUpdate()">提交</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // 页面加载时自动查询
+    window.onload = function() {
+        const fangzhuzhanghao = sessionStorage.getItem("Fangzhuzhanghao");
+        if (!fangzhuzhanghao) {
+            alert('未获取到房主信息，请重新登录');
+            return;
+        }
+        searchReservations(fangzhuzhanghao);
+    };
+
+    // 查询预约
+    function searchReservations(fangzhuzhanghao) {
+        axios.get(`http://localhost:8091/Yuyuekanfang/selectByFangzhuzhanghao?fangzhuzhanghao=${fangzhuzhanghao}`)
+            .then(response => {
+                if (response.data.code === 200) {
+                    displayReservations(response.data.data);
+                } else {
+                    alert('查询失败: ' + response.data.message);
+                }
+            })
+            .catch(error => {
+                alert('查询出错: ' + error.message);
+            });
+    }
+
+    // 显示预约列表
+    function displayReservations(reservations) {
+        const container = document.getElementById('reservationList');
+        container.innerHTML = '';
+
+        if (reservations.length === 0) {
+            container.innerHTML = '<p>您还没有收到任何预约</p>';
+            return;
+        }
+
+        const table = document.createElement('table');
+        table.border = '1';
+
+        // 表头
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+        const headers = ['预约编号', '房屋名称', '预约用户', '联系方式', '预约时间', '状态', '审核回复', '操作'];
+
+        headers.forEach(headerText => {
+            const th = document.createElement('th');
+            th.textContent = headerText;
+            headerRow.appendChild(th);
+        });
+
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        // 表体
+        const tbody = document.createElement('tbody');
+
+        reservations.forEach(reservation => {
+            const row = document.createElement('tr');
+
+            // 预约编号
+            const idCell = document.createElement('td');
+            idCell.textContent = reservation.yuyuebianhao;
+            row.appendChild(idCell);
+
+            // 房屋名称
+            const fangwuCell = document.createElement('td');
+            fangwuCell.textContent = reservation.fangwumingcheng;
+            row.appendChild(fangwuCell);
+
+            // 预约用户
+            const userCell = document.createElement('td');
+            userCell.textContent = `${reservation.xingming}(${reservation.yonghuming})`;
+            row.appendChild(userCell);
+
+            // 联系方式
+            const contactCell = document.createElement('td');
+            contactCell.textContent = reservation.lianxidianhua;
+            row.appendChild(contactCell);
+
+            // 预约时间
+            const timeCell = document.createElement('td');
+            timeCell.textContent = reservation.yuyueshijian;
+            row.appendChild(timeCell);
+
+            // 状态
+            const statusCell = document.createElement('td');
+            statusCell.textContent = reservation.sfsh;
+            row.appendChild(statusCell);
+
+            // 审核回复
+            const shhfCell = document.createElement('td');
+            shhfCell.textContent = reservation.shhf || '无';
+            row.appendChild(shhfCell);
+
+            // 操作
+            const actionCell = document.createElement('td');
+            if (reservation.sfsh === '预约中') {
+                const editBtn = document.createElement('button');
+                editBtn.textContent = '修改状态';
+                editBtn.onclick = () => openEditModal(reservation);
+                actionCell.appendChild(editBtn);
+            } else {
+                actionCell.textContent = '不可修改';
+            }
+            row.appendChild(actionCell);
+
+            tbody.appendChild(row);
+        });
+
+        table.appendChild(tbody);
+        container.appendChild(table);
+    }
+
+    // 打开修改模态框
+    function openEditModal(reservation) {
+        document.getElementById('editId').value = reservation.id;
+        document.getElementById('editSfsh').value = reservation.sfsh;
+        document.getElementById('editShhf').value = reservation.shhf || '';
+        document.getElementById('editModal').style.display = 'block';
+    }
+
+    // 关闭模态框
+    function closeModal() {
+        document.getElementById('editModal').style.display = 'none';
+    }
+
+    // 提交修改
+    function submitUpdate() {
+        const id = document.getElementById('editId').value;
+        const sfsh = document.getElementById('editSfsh').value;
+        const shhf = document.getElementById('editShhf').value;
+
+        if (!sfsh) {
+            alert('请选择状态');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('id', id);
+        formData.append('sfsh', sfsh);
+        formData.append('shhf', shhf);
+
+        axios.post('http://localhost:8091/Yuyuekanfang/update', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
+            .then(response => {
+                if (response.data.code === 200) {
+                    alert('修改成功');
+                    closeModal();
+                    // 重新加载当前房主的预约
+                    const fangzhuzhanghao = sessionStorage.getItem("Fangzhuzhanghao");
+                    searchReservations(fangzhuzhanghao);
+                } else {
+                    alert('修改失败: ' + response.data.message);
+                }
+            })
+            .catch(error => {
+                alert('修改出错: ' + error.message);
+            });
+    }
+</script>
+</body>
+</html>

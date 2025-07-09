@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>测试获取登录信息</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background-color: #f9f9f9;
+    }
+    .success {
+      border-color: #4CAF50;
+      background-color: #e8f5e9;
+    }
+    .error {
+      border-color: #f44336;
+      background-color: #ffebee;
+    }
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      display: block;
+      margin: 0 auto;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .info-item {
+      margin: 10px 0;
+      padding: 8px;
+      background-color: white;
+      border-radius: 4px;
+    }
+    .label {
+      font-weight: bold;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+<h1>登录信息测试</h1>
+<button onclick="checkLogin()">测试获取登录信息</button>
+
+<div id="result" class="result" style="display: none;">
+  <h3 style="margin-top: 0; color: #333;">测试结果：</h3>
+  <div class="info-item">
+    <span class="label">用户ID:</span> <span id="userId"></span>
+  </div>
+  <div class="info-item">
+    <span class="label">用户角色:</span> <span id="userRole"></span>
+  </div>
+  <div class="info-item">
+    <span class="label">用户名:</span> <span id="userName"></span>
+  </div>
+  <div class="header-container">
+    <a href="LoginF.html" class="back-button">房主登录</a>
+  </div>
+  <div class="header-container">
+    <a href="LoginY.html" class="back-button">租客登录</a>
+  </div>
+  <div class="header-container">
+    <a href="RegisterF.html" class="back-button">房主注册</a>
+  </div>
+  <div class="header-container">
+    <a href="RegisterY.html" class="back-button">租客注册</a>
+  </div>
+  <div class="header-container">
+    <a href="LoginA.html" class="back-button">管理员登录</a>
+  </div>
+</div>
+
+<script>
+  function checkLogin() {
+    // 从sessionStorage获取信息
+    const userId = sessionStorage.getItem('Fangzhuid');
+    const userRole = sessionStorage.getItem('Role');
+    const userName = sessionStorage.getItem('UserName');
+
+    const resultDiv = document.getElementById('result');
+    const userIdSpan = document.getElementById('userId');
+    const userRoleSpan = document.getElementById('userRole');
+    const userNameSpan = document.getElementById('userName');
+
+    if (userId && userRole && userName) {
+      userIdSpan.textContent = userId;
+      userRoleSpan.textContent = userRole;
+      userNameSpan.textContent = userName;
+      resultDiv.style.display = 'block';
+      resultDiv.className = 'result success';
+    } else {
+      userIdSpan.textContent = '未找到';
+      userRoleSpan.textContent = '未找到';
+      userNameSpan.textContent = '未找到';
+      resultDiv.style.display = 'block';
+      resultDiv.className = 'result error';
+      alert('未检测到登录信息！');
+      // 清除可能存在的无效session
+      sessionStorage.removeItem('Fangzhuid');
+      sessionStorage.removeItem('Role');
+      sessionStorage.removeItem('UserName');
+      // 跳转到登录页
+      //window.location.href = 'LoginF.html';
+    }
+  }
+
+  // 页面加载时自动检查一次
+  window.onload = checkLogin;
+</script>
+</body>
+</html>

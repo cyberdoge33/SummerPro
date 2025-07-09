@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>房主注册</title>
+  <script>
+    function checkZhanghao() {
+      var zhanghao = document.getElementById("fangzhuzhanghao").value;
+      if(zhanghao === "") {
+        document.getElementById("zhanghaoTip").innerText = "请输入房主账号";
+        return;
+      }
+
+      fetch('/Fangzhu/selectByZhanghao?zhanghao=' + zhanghao)
+              .then(response => response.json())
+              .then(data => {
+                if(data.code === 200 && data.data) {
+                  document.getElementById("zhanghaoTip").innerText = "账号已存在，请更换";
+                } else {
+                  document.getElementById("zhanghaoTip").innerText = "账号可用";
+                }
+              })
+              .catch(error => {
+                console.error('Error:', error);
+                document.getElementById("zhanghaoTip").innerText = "检查账号时出错";
+              });
+    }
+
+    function validateForm(event) {
+      event.preventDefault(); // 阻止表单默认提交行为
+
+      var zhanghaoTip = document.getElementById("zhanghaoTip").innerText;
+      var zhanghaoInput = document.getElementById("fangzhuzhanghao").value;
+
+      if(zhanghaoTip === "账号已存在，请更换") {
+        alert("该账号已被使用，请更换其他账号");
+        return false;
+      }
+
+      if(zhanghaoInput === "") {
+        alert("请输入房主账号");
+        return false;
+      }
+
+      if(zhanghaoTip !== "账号可用") {
+        alert("请先检查账号是否可用");
+        return false;
+      }
+
+      // 使用FormData收集表单数据
+      const formData = new FormData(document.querySelector('form'));
+
+      // 发送注册请求
+      fetch('/Fangzhu/addFangzhu', {
+        method: 'POST',
+        body: formData
+      })
+              .then(response => response.json())
+              .then(data => {
+                if(data.code === 200) {
+                  alert("注册成功！");
+                  window.location.href = "Index.html"; // 注册成功后跳转
+                } else {
+                  alert("注册失败：" + (data.message || "未知错误"));
+                }
+              })
+              .catch(error => {
+                console.error('Error:', error);
+                alert("注册请求发送失败");
+              });
+
+      return false;
+    }
+  </script>
+</head>
+<body>
+<h1>房主注册</h1>
+<form method="post" enctype="multipart/form-data" onsubmit="return validateForm(event)">
+  <!-- 原有表单内容保持不变 -->
+  <div>
+    <label for="fangzhuzhanghao">房主账号：</label>
+    <input type="text" id="fangzhuzhanghao" name="fangzhuzhanghao" required onblur="checkZhanghao()">
+    <span id="zhanghaoTip"></span>
+  </div>
+
+  <div>
+    <label for="mima">密码：</label>
+    <input type="password" id="mima" name="mima" required>
+  </div>
+
+  <div>
+    <label for="fangzhuxingming">房主姓名：</label>
+    <input type="text" id="fangzhuxingming" name="fangzhuxingming" required>
+  </div>
+
+  <div>
+    <label for="xingbie">性别：</label>
+    <select id="xingbie" name="xingbie" required>
+      <option value="">请选择</option>
+      <option value="男">男</option>
+      <option value="女">女</option>
+    </select>
+  </div>
+
+  <div>
+    <label for="touxiang">头像：</label>
+    <input type="file" id="touxiang" name="file" accept="image/*" required>
+  </div>
+
+  <div>
+    <label for="shouji">手机：</label>
+    <input type="tel" id="shouji" name="shouji" required>
+  </div>
+
+  <div>
+    <label for="shenfenzheng">身份证：</label>
+    <input type="text" id="shenfenzheng" name="shenfenzheng" required>
+  </div>
+
+  <div>
+    <button type="submit">注册</button>
+  </div>
+</form>
+</body>
+</html>

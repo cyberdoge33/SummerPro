@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>租客登录</title>
+</head>
+<body>
+<div id="app">
+  <h2>租客登录</h2>
+  <form @submit.prevent="login">
+    <div>
+      <label for="yonghuming">租客ID：</label>
+      <input type="text" id="yonghuming" v-model="yonghuming" required>
+    </div>
+    <div>
+      <label for="mima">密码：</label>
+      <input type="password" id="mima" v-model="mima" required>
+    </div>
+    <button type="submit">登录</button>
+  </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@3.2.31/dist/vue.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+  const { createApp } = Vue;
+
+  createApp({
+    data() {
+      return {
+        id: '',
+        mima: '',
+        yonghuming: '',
+        xingming: '',
+        lianxidianhua: '',
+        shenfenzheng: '',
+      }
+    },
+    methods: {
+      login() {
+        // 修正了axios请求的URL拼接问题
+        axios.get(`/Yonghu/selectByYonghuming?yonghuming=${this.yonghuming}`)
+                .then(response => {
+                  if (response.data.code === 200) {
+                    const user = response.data.data;
+                    console.log(user);
+                    // 验证密码
+                    if (user.mima === this.mima) {
+                      sessionStorage.clear();
+                      sessionStorage.setItem('YonghuId',user.id);//租客id存入session
+                      console.log(sessionStorage.getItem('YonghuId'));
+                      sessionStorage.setItem('Role',"Zuke");//身份信息存入session
+                      sessionStorage.setItem('Yonghuming', user.yonghuming)
+                      sessionStorage.setItem('Xingming', user.xingming)
+                      sessionStorage.setItem('Lianxidianhua', user.lianxidianhua)
+                      sessionStorage.setItem('Shenfenzheng', user.shenfenzheng)
+                      console.log(sessionStorage.getItem('YonghuId'));
+                      /**
+                       *  logout() {
+                                 // 清除sessionStorage
+                                  sessionStorage.removeItem('userId');
+                                sessionStorage.removeItem('UserName');
+                                     }
+                       */
+                      alert('登录成功');
+                      //window.location.href = 'AccountY.html';//登陆成功跳转接口***测试用***
+                      window.location.href = 'Fangwuxinxi.html';//登陆成功跳转接口
+                    } else {
+                      alert('密码错误');
+                    }
+                  } else {
+                    alert('用户不存在');
+                  }
+                })
+                .catch(error => {
+                  console.error('登录失败:', error);
+                  alert('登录失败，请重试');
+                });
+      }
+    }
+  }).mount('#app');
+</script>
+</body>
+</html>

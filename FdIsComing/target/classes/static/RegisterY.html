@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户注册</title>
+    <script>
+        function checkUsername() {
+            var username = document.getElementById("yonghuming").value;
+            if(username === "") {
+                document.getElementById("usernameTip").innerText = "请输入用户名";
+                return;
+            }
+
+            fetch('/Yonghu/selectByYonghuming?yonghuming=' + username)
+                .then(response => response.json())
+                .then(data => {
+                    if(data.data) {
+                        document.getElementById("usernameTip").innerText = "用户名已存在，请更换";
+                    } else {
+                        document.getElementById("usernameTip").innerText = "用户名可用";
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById("usernameTip").innerText = "检查用户名时出错";
+                });
+        }
+
+        function validateForm(event) {
+            event.preventDefault(); // 阻止表单默认提交
+
+            var usernameTip = document.getElementById("usernameTip").innerText;
+            if(usernameTip === "用户名已存在，请更换") {
+                alert("请更换用户名后再提交");
+                return false;
+            }
+
+            // 使用FormData收集表单数据
+            const formData = new FormData(document.querySelector('form'));
+
+            // 发送注册请求
+            fetch('/Yonghu/addYonghu', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.code === 200) {
+                        alert("注册成功！");
+                        window.location.href = "Index.html"; // 跳转到首页
+                    } else {
+                        alert("注册失败：" + (data.message || "未知错误"));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("注册请求发送失败");
+                });
+
+            return false;
+        }
+    </script>
+</head>
+<body>
+<h1>用户注册</h1>
+<form method="post" enctype="multipart/form-data" onsubmit="return validateForm(event)">
+    <div>
+        <label for="yonghuming">用户名：</label>
+        <input type="text" id="yonghuming" name="yonghuming" required onblur="checkUsername()">
+        <span id="usernameTip"></span>
+    </div>
+
+    <div>
+        <label for="mima">密码：</label>
+        <input type="password" id="mima" name="mima" required>
+    </div>
+
+    <div>
+        <label for="xingming">姓名：</label>
+        <input type="text" id="xingming" name="xingming" required>
+    </div>
+
+    <div>
+        <label for="touxiang">头像：</label>
+        <input type="file" id="touxiang" name="file" accept="image/*" required>
+    </div>
+
+    <div>
+        <label for="xingbie">性别：</label>
+        <select id="xingbie" name="xingbie" required>
+            <option value="">请选择</option>
+            <option value="男">男</option>
+            <option value="女">女</option>
+        </select>
+    </div>
+
+    <div>
+        <label for="zhiye">职业：</label>
+        <input type="text" id="zhiye" name="zhiye">
+    </div>
+
+    <div>
+        <label for="lianxidianhua">联系电话：</label>
+        <input type="tel" id="lianxidianhua" name="lianxidianhua">
+    </div>
+
+    <div>
+        <label for="shenfenzheng">身份证：</label>
+        <input type="text" id="shenfenzheng" name="shenfenzheng">
+    </div>
+
+    <div>
+        <button type="submit">注册</button>
+    </div>
+</form>
+</body>
+</html>
