@@ -4,15 +4,308 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>我的预约看房</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --light-bg: #f5f7fa;
+            --border-color: #e0e3e7;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --error-color: #e74c3c;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --card-hover-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            font-family: 'Noto Sans SC', sans-serif;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            background-image: linear-gradient(135deg, #e4e8f0 0%, #d1d8e4 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .reservation-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .reservation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-title i {
+            color: var(--primary-color);
+        }
+
+        .btn-back {
+            padding: 12px 25px;
+            background-color: var(--secondary-color);
+            color: white;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-decoration: none;
+            font-size: 15px;
+        }
+
+        .btn-back:hover {
+            background-color: #3d5066;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+        }
+
+        .reservation-content {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--secondary-color);
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            font-size: 22px;
+            color: var(--primary-color);
+        }
+
+        .reservation-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .reservation-card {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .reservation-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--card-hover-shadow);
+        }
+
+        .reservation-header-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .reservation-id {
+            font-weight: 600;
+            color: var(--secondary-color);
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .reservation-status {
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .status-pending {
+            background-color: rgba(243, 156, 18, 0.15);
+            color: var(--warning-color);
+        }
+
+        .status-success {
+            background-color: rgba(46, 204, 113, 0.15);
+            color: var(--success-color);
+        }
+
+        .status-failed {
+            background-color: rgba(231, 76, 60, 0.15);
+            color: var(--error-color);
+        }
+
+        .reservation-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--secondary-color);
+        }
+
+        .reservation-footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 15px;
+        }
+
+        .btn-cancel {
+            padding: 8px 16px;
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--error-color);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-cancel:hover {
+            background-color: rgba(231, 76, 60, 0.2);
+        }
+
+        .btn-disabled {
+            padding: 8px 16px;
+            background-color: rgba(127, 140, 141, 0.1);
+            color: #7f8c8d;
+            border: 1px solid rgba(127, 140, 141, 0.3);
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: not-allowed;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .empty-state {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .empty-icon {
+            font-size: 60px;
+            color: #bdc3c7;
+            margin-bottom: 15px;
+        }
+
+        .empty-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+        }
+
+        .empty-text {
+            color: #7f8c8d;
+            margin-bottom: 20px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .loading-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 300px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+        }
+
+        @media (max-width: 768px) {
+            .reservation-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .reservation-details {
+                grid-template-columns: 1fr;
+            }
+
+            .reservation-header-info {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
 </head>
 <body>
-<h1>我的预约看房</h1>
-<a href="Fangwuxinxi.html" class="btn btn-primary btn-add">
-    <i class="bi bi-plus-circle"></i> 返回
-</a>
-<div id="reservationList">
-    <!-- 预约列表将在这里动态生成 -->
+<div class="reservation-container">
+    <!-- 页面头部 -->
+    <div class="reservation-header">
+        <h1 class="header-title">
+            <i class="bi bi-calendar-check"></i>我的预约看房
+        </h1>
+        <a href="Fangwuxinxi.html" class="btn-back">
+            <i class="bi bi-arrow-left"></i> 返回房源列表
+        </a>
+    </div>
+
+    <div class="reservation-content">
+        <div class="section-title">
+            <i class="bi bi-list-check"></i>预约记录
+        </div>
+
+        <div id="reservationList">
+            <!-- 预约列表将在这里动态生成 -->
+        </div>
+    </div>
 </div>
 
 <script>
@@ -23,6 +316,17 @@
             alert('未获取到用户信息，请重新登录');
             return;
         }
+
+        // 显示加载状态
+        const container = document.getElementById('reservationList');
+        container.innerHTML = `
+            <div class="loading-container">
+                <div class="spinner-border text-primary" style="width: 4rem; height: 4rem;" role="status">
+                    <span class="visually-hidden">加载中...</span>
+                </div>
+            </div>
+        `;
+
         searchReservations(yonghuming);
     };
 
@@ -47,90 +351,94 @@
         container.innerHTML = '';
 
         if (reservations.length === 0) {
-            container.innerHTML = '<p>您还没有预约记录</p>';
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="bi bi-calendar-x"></i>
+                    </div>
+                    <h3 class="empty-title">您还没有预约记录</h3>
+                    <p class="empty-text">点击返回按钮浏览房源并预约看房</p>
+                </div>
+            `;
             return;
         }
 
-        const table = document.createElement('table');
-        table.border = '1';
-
-        // 表头
-        const thead = document.createElement('thead');
-        const headerRow = document.createElement('tr');
-        const headers = ['预约编号', '房屋名称', '小区', '月租价格', '预约时间', '状态', '审核回复', '操作'];
-
-        headers.forEach(headerText => {
-            const th = document.createElement('th');
-            th.textContent = headerText;
-            headerRow.appendChild(th);
-        });
-
-        thead.appendChild(headerRow);
-        table.appendChild(thead);
-
-        // 表体
-        const tbody = document.createElement('tbody');
+        const listContainer = document.createElement('div');
+        listContainer.className = 'reservation-list';
 
         reservations.forEach(reservation => {
-            const row = document.createElement('tr');
+            const card = document.createElement('div');
+            card.className = 'reservation-card';
 
-            // 预约编号
-            const idCell = document.createElement('td');
-            idCell.textContent = reservation.yuyuebianhao;
-            row.appendChild(idCell);
+            // 状态类名
+            let statusClass = 'status-pending';
+            if (reservation.sfsh === '预约成功') statusClass = 'status-success';
+            if (reservation.sfsh === '预约失败') statusClass = 'status-failed';
 
-            // 房屋名称
-            const fangwuCell = document.createElement('td');
-            fangwuCell.textContent = reservation.fangwumingcheng;
-            row.appendChild(fangwuCell);
+            card.innerHTML = `
+                <div class="reservation-header-info">
+                    <div class="reservation-id">
+                        <i class="bi bi-tag"></i> 预约编号: ${reservation.yuyuebianhao}
+                    </div>
+                    <div class="reservation-status ${statusClass}">
+                        ${reservation.sfsh}
+                    </div>
+                </div>
 
-            // 小区
-            const xiaoquCell = document.createElement('td');
-            xiaoquCell.textContent = reservation.xiaoqu;
-            row.appendChild(xiaoquCell);
+                <div class="reservation-details">
+                    <div class="detail-item">
+                        <span class="detail-label">房屋名称</span>
+                        <span class="detail-value">${reservation.fangwumingcheng}</span>
+                    </div>
 
-            // 月租价格
-            const yuezuCell = document.createElement('td');
-            yuezuCell.textContent = reservation.yuezujiage;
-            row.appendChild(yuezuCell);
+                    <div class="detail-item">
+                        <span class="detail-label">小区</span>
+                        <span class="detail-value">${reservation.xiaoqu}</span>
+                    </div>
 
-            // 预约时间
-            const timeCell = document.createElement('td');
-            timeCell.textContent = reservation.yuyueshijian;
-            row.appendChild(timeCell);
+                    <div class="detail-item">
+                        <span class="detail-label">月租价格</span>
+                        <span class="detail-value">¥${reservation.yuezujiage}</span>
+                    </div>
 
-            // 状态
-            const statusCell = document.createElement('td');
-            statusCell.textContent = reservation.sfsh;
-            row.appendChild(statusCell);
+                    <div class="detail-item">
+                        <span class="detail-label">预约时间</span>
+                        <span class="detail-value">${reservation.yuyueshijian}</span>
+                    </div>
 
-            // 审核回复
-            const shhfCell = document.createElement('td');
-            shhfCell.textContent = reservation.shhf || '无';
-            row.appendChild(shhfCell);
+                    <div class="detail-item">
+                        <span class="detail-label">审核回复</span>
+                        <span class="detail-value">${reservation.shhf || '暂无回复'}</span>
+                    </div>
+                </div>
+            `;
 
-            // 操作
-            const actionCell = document.createElement('td');
+            const footer = document.createElement('div');
+            footer.className = 'reservation-footer';
+
             if (reservation.sfsh === '预约中' || reservation.sfsh === '预约失败') {
-                const deleteBtn = document.createElement('button');
-                deleteBtn.textContent = '取消预约';
-                deleteBtn.onclick = () => deleteReservation(reservation.id);
-                actionCell.appendChild(deleteBtn);
+                const cancelBtn = document.createElement('button');
+                cancelBtn.className = 'btn-cancel';
+                cancelBtn.innerHTML = '<i class="bi bi-x-circle"></i> 取消预约';
+                cancelBtn.onclick = () => deleteReservation(reservation.id);
+                footer.appendChild(cancelBtn);
             } else {
-                actionCell.textContent = '不可取消';
+                const disabledBtn = document.createElement('div');
+                disabledBtn.className = 'btn-disabled';
+                disabledBtn.innerHTML = '<i class="bi bi-lock"></i> 不可取消';
+                footer.appendChild(disabledBtn);
             }
-            row.appendChild(actionCell);
 
-            tbody.appendChild(row);
+            card.appendChild(footer);
+            listContainer.appendChild(card);
         });
 
-        table.appendChild(tbody);
-        container.appendChild(table);
+        container.appendChild(listContainer);
     }
 
     // 删除预约
     function deleteReservation(id) {
-        if (!confirm('确定要取消这个预约吗？')) {
+        if (!confirm('确定要取消这个预约吗？此操作不可撤销！')) {
             return;
         }
 

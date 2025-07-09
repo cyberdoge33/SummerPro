@@ -28,6 +28,7 @@ private FangwuxinxiMapper fangwuxinxiMapper;
         // 1. 尝试从Redis获取缓存
         List<Fangwuxinxi> cachedList = (List<Fangwuxinxi>) redisTemplate.opsForValue().get(CACHE_KEY);
         if (cachedList != null) {
+            System.out.println("从Redis中获取数据");
             return cachedList;
         }
         // 2. 缓存未命中，查询数据库

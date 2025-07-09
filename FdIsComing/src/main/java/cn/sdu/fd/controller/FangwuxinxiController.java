@@ -32,9 +32,6 @@ public class FangwuxinxiController {
     }
 
     
-
-    
-    
     //添加房屋信息
     @PostMapping(value="/Fangwuxinxi/addFangwuxinxi", consumes = "multipart/form-data")
     public ServerResult<Void> addFangwuxinxi(Fangwuxinxi fangwuxinxi, MultipartFile file){
