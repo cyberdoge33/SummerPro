@@ -1,7 +1,9 @@
 package cn.sdu.fd.service.impl;
 
 import cn.sdu.fd.mapper.FangzhuMapper;
+import cn.sdu.fd.pojo.Fangwuxinxi;
 import cn.sdu.fd.pojo.Fangzhu;
+import cn.sdu.fd.pojo.Yonghu;
 import cn.sdu.fd.service.FangzhuService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;

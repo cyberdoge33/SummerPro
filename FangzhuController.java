@@ -21,56 +21,55 @@ import java.util.List;
 
 @RestController
 public class FangzhuController {
-    @Autowired
-    private FangzhuService fangzhuService;
-    //查询所有
-    @RequestMapping("/Fangzhu/selectAll")
-    public ServerResult<List<Fangzhu>> selectAll()
-    {
-        List<Fangzhu> list = fangzhuService.selectAll();
-        return ServerResult.ok(list);
-    }
-
-//@Autowired
-//private FangzhuService fangzhuService;
-//
 //    @Autowired
-//    private StringRedisTemplate stringRedisTemplate;
-//
-//    private static final ObjectMapper objectMapper = new ObjectMapper();
-//    private static final String CACHE_KEY = "fangzhu:all";
-//
-//    @RequestMapping("/selectAll")
-//    public ServerResult<List<Fangzhu>> selectAll() {
-//        try {
-//            // 1. 尝试从Redis获取缓存
-//            String json = stringRedisTemplate.opsForValue().get(CACHE_KEY);
-//
-//            if (json != null && !json.isEmpty()) {
-//                // 2. 缓存命中，直接返回
-//                List<Fangzhu> cachedList = objectMapper.readValue(json,
-//                        objectMapper.getTypeFactory().constructCollectionType(List.class, Fangzhu.class));
-//                return ServerResult.ok(cachedList);
-//            }
-//
-//            // 3. 缓存未命中，查询数据库
-//            List<Fangzhu> dbList = fangzhuService.selectAll();
-//
-//            if (dbList != null && !dbList.isEmpty()) {
-//                // 4. 将结果存入Redis
-//                String dbJson = objectMapper.writeValueAsString(dbList);
-//                stringRedisTemplate.opsForValue().set(CACHE_KEY, dbJson);
-//
-//                // 可设置过期时间（例如30分钟）
-//                // stringRedisTemplate.expire(CACHE_KEY, 30, TimeUnit.MINUTES);
-//            }
-//
-//            return ServerResult.ok(dbList);
-//
-//        } catch (JsonProcessingException e) {
-//            // 异常处理
-//            throw new RuntimeException("JSON转换异常");}
+//    private FangzhuService fangzhuService;
+//    //查询所有
+//    @RequestMapping("/Fangzhu/selectAll")
+//    public ServerResult<List<Fangzhu>> selectAll()
+//    {
+//        List<Fangzhu> list = fangzhuService.selectAll();
+//        return ServerResult.ok(list);
 //    }
+@Autowired
+private FangzhuService fangzhuService;
+
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final String CACHE_KEY = "fangzhu:all";
+
+    @RequestMapping("/selectAll")
+    public ServerResult<List<Fangzhu>> selectAll() {
+        try {
+            // 1. 尝试从Redis获取缓存
+            String json = stringRedisTemplate.opsForValue().get(CACHE_KEY);
+
+            if (json != null && !json.isEmpty()) {
+                // 2. 缓存命中，直接返回
+                List<Fangzhu> cachedList = objectMapper.readValue(json,
+                        objectMapper.getTypeFactory().constructCollectionType(List.class, Fangzhu.class));
+                return ServerResult.ok(cachedList);
+            }
+
+            // 3. 缓存未命中，查询数据库
+            List<Fangzhu> dbList = fangzhuService.selectAll();
+
+            if (dbList != null && !dbList.isEmpty()) {
+                // 4. 将结果存入Redis
+                String dbJson = objectMapper.writeValueAsString(dbList);
+                stringRedisTemplate.opsForValue().set(CACHE_KEY, dbJson);
+
+                // 可设置过期时间（例如30分钟）
+                // stringRedisTemplate.expire(CACHE_KEY, 30, TimeUnit.MINUTES);
+            }
+
+            return ServerResult.ok(dbList);
+
+        } catch (JsonProcessingException e) {
+            // 异常处理
+            throw new RuntimeException("JSON转换异常");}
+    }
 
 
     //根据id查询，用于个人账户管理

@@ -407,7 +407,96 @@
           reader.readAsDataURL(file);
         }
       },
+/***********/
+      submitEdit() {
+        this.isSubmitting = true;
 
+        const formData = new FormData();
+        const houseData = {
+          ...this.editForm,
+          fangwuleixing: this.fullHouseType,
+          chaoxianglouceng: this.fullOrientationFloor
+        };
+
+        for (const key in houseData) {
+          if (houseData[key] !== null && houseData[key] !== undefined) {
+            formData.append(key, houseData[key]);
+          }
+        }
+
+        if (this.imageFile) {
+          formData.append('file', this.imageFile);
+        }
+
+        axios.post('/Fangwuxinxi/update', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        })
+                .then(response => {
+                  if (response.data.code === 200) {
+                    alert('修改成功');
+                    this.editModal.hide();
+
+                    // 检查响应数据是否存在
+                    if (response.data.data) {
+                      const updatedHouse = response.data.data;
+                      const index = this.houses.findIndex(h => h.id === updatedHouse.id);
+                      if (index !== -1) {
+                        const typeParts = updatedHouse.fangwuleixing?.match(/(\d+室)(\d+厅)/) || [];
+                        const orientationParts = updatedHouse.chaoxianglouceng?.split('/') || [];
+
+                        this.houses.splice(index, 1, {
+                          ...updatedHouse,
+                          fangwuleixing_shi: typeParts[1] || '',
+                          fangwuleixing_ting: typeParts[2] || '',
+                          chaoxiang: orientationParts[0] || '',
+                          louceng: orientationParts[1] || ''
+                        });
+                      }
+                    } else {
+                      // 如果响应中没有data，则重新加载数据
+                      this.loadHouses(sessionStorage.getItem('Fangzhuzhanghao'));
+                    }
+                  } else {
+                    alert('修改失败: ' + response.data.message);
+                  }
+                })
+                .catch(error => {
+                  console.error('修改出错:', error);
+                  alert('修改出错，请重试');
+                })
+                .finally(() => {
+                  this.isSubmitting = false;
+                });
+      },
+      // 确认删除
+      confirmDelete(houseId) {
+        if (confirm('确定要删除这条房屋信息吗？此操作不可撤销！')) {
+          // 先删除本地数据
+          const index = this.houses.findIndex(h => h.id === houseId);
+          if (index !== -1) {
+            this.houses.splice(index, 1);
+          }
+
+          // 然后发送删除请求
+          axios.delete(`/Fangwuxinxi/delete?id=${houseId}`)
+                  .then(response => {
+                    if (response.data.code !== 200) {
+                      alert('删除失败: ' + response.data.message);
+                      // 如果服务器删除失败，恢复本地数据
+                      this.loadHouses(sessionStorage.getItem('Fangzhuid'));
+                    }
+                  })
+                  .catch(error => {
+                    console.error('删除出错:', error);
+                    alert('删除出错，请重试');
+                    // 如果请求失败，恢复本地数据
+                    this.loadHouses(sessionStorage.getItem('Fangzhuid'));
+                  });
+        }
+      }
+      /**
       // 提交编辑表单
       submitEdit() {
         this.isSubmitting = true;
@@ -476,6 +565,8 @@
                   });
         }
       }
+      */
+      /****/
     },
     mounted() {
       // 初始化模态框
