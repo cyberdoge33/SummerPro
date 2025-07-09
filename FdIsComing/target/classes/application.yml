@@ -3,13 +3,18 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.jdbc.Driver # 数据库驱动
-    url: jdbc:mysql://localhost:3306/fdscoming? # 数据库地址
+    url: jdbc:mysql://localhost:3306/cent? # 数据库地址
     username: root # 数据库用户名
-    password: 123456 # 数据库密码
+    password: zxcvbnm040710 # 数据库密码
 
   web:
     resources:
       static-locations: classpath:/static/, file:/E:/upload/
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    database: 0
+
 
 springdoc:
   api-docs:

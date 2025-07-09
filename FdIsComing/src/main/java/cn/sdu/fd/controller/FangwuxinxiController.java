@@ -1,10 +1,11 @@
 package cn.sdu.fd.controller;
-
+import java.util.concurrent.TimeUnit;
 
 import cn.sdu.fd.pojo.Fangwuxinxi;
 import cn.sdu.fd.service.FangwuxinxiService;
 import cn.sdu.fd.util.ServerResult;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,21 +13,28 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
-
+@Slf4j
 @RestController
 public class FangwuxinxiController {
     @Autowired
     private FangwuxinxiService fangwuxinxiService;
-    //查询所有房屋信息
+
     @RequestMapping("/Fangwuxinxi/selectAll")
     public ServerResult<List<Fangwuxinxi>> selectAll()
     {
         List<Fangwuxinxi> list = fangwuxinxiService.selectAll();
         return ServerResult.ok(list);
     }
+
+    
+
+    
+    
     //添加房屋信息
     @PostMapping(value="/Fangwuxinxi/addFangwuxinxi", consumes = "multipart/form-data")
     public ServerResult<Void> addFangwuxinxi(Fangwuxinxi fangwuxinxi, MultipartFile file){
