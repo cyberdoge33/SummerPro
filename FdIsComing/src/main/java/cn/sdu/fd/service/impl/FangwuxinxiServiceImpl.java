@@ -105,4 +105,13 @@ if (result < 1){
             throw new RuntimeException("删除失败");
         }
     }
+    //按id查找
+    @Override
+    public Fangwuxinxi selectById(Long id) {
+        Fangwuxinxi fangwuxinxi = fangwuxinxiMapper.selectById(id);
+        if (fangwuxinxi != null){
+            return fangwuxinxi;
+        }
+        return null;
+    }
 }
