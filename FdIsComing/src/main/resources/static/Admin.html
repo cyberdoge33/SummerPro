@@ -5,113 +5,585 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>管理员后台</title>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --light-bg: #f5f7fa;
+            --border-color: #e0e3e7;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --error-color: #e74c3c;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --card-hover-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            font-family: 'Noto Sans SC', sans-serif;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            background-image: linear-gradient(135deg, #e4e8f0 0%, #d1d8e4 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-title i {
+            color: var(--primary-color);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn-action {
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-decoration: none;
+            font-size: 15px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+        }
+
+        .btn-primary-action {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-secondary-action {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-danger-action {
+            background-color: var(--error-color);
+            color: white;
+        }
+
+        .tab-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .tab-button {
+            padding: 12px 25px;
+            border-radius: 8px 8px 0 0;
+            background-color: #f0f4f8;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--secondary-color);
+        }
+
+        .tab-button.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .tab-button:hover:not(.active) {
+            background-color: #eef2f7;
+        }
+
+        .content-section {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--secondary-color);
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--primary-color);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .data-table th {
+            background-color: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--secondary-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .action-button {
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-edit {
+            background-color: rgba(52, 152, 219, 0.1);
+            color: var(--primary-color);
+            border: 1px solid rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-edit:hover {
+            background-color: rgba(52, 152, 219, 0.2);
+        }
+
+        .btn-delete {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--error-color);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+
+        .btn-delete:hover {
+            background-color: rgba(231, 76, 60, 0.2);
+        }
+
+        /* 模态框样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            width: 90%;
+            max-width: 600px;
+            transform: translateY(20px);
+            transition: all 0.3s;
+            opacity: 0;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #7f8c8d;
+            transition: all 0.3s;
+        }
+
+        .modal-close:hover {
+            color: var(--error-color);
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--secondary-color);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 15px;
+            background-color: #f8f9fa;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 15px;
+            background-color: #f8f9fa;
+            transition: all 0.3s;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        .btn-secondary {
+            padding: 10px 20px;
+            background-color: #e0e3e7;
+            color: var(--secondary-color);
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background-color: #d1d8e4;
+        }
+
+        .btn-primary {
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .empty-state {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .empty-icon {
+            font-size: 60px;
+            color: #bdc3c7;
+            margin-bottom: 15px;
+        }
+
+        .empty-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+        }
+
+        .empty-text {
+            color: #7f8c8d;
+            margin-bottom: 20px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        @media (max-width: 768px) {
+            .admin-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+
+            .action-buttons {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .tab-container {
+                flex-wrap: wrap;
+            }
+
+            .data-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
 </head>
 <body>
-<h1>管理员后台</h1>
-
-<!-- 功能切换按钮 -->
-<div>
-    <button id="fangzhuBtn" onclick="showFangzhu()">管理房主信息</button>
-    <button id="userBtn" onclick="showUser()">管理用户信息</button>
-    <button id="logoutBtn" onclick="logout()">退出</button>
-</div>
-
-<!-- 房主信息管理区域 -->
-<div id="fangzhuSection">
-    <h2>房主信息管理</h2>
-    <div id="fangzhuList">
-        <!-- 房主列表将在这里动态生成 -->
+<div class="admin-container">
+    <!-- 页面头部 -->
+    <div class="admin-header">
+        <h1 class="header-title">
+            <i class="bi bi-shield-lock"></i> 管理员后台
+        </h1>
+        <div class="action-buttons">
+            <button class="btn-action btn-danger-action" onclick="logout()">
+                <i class="bi bi-box-arrow-right"></i> 退出登录
+            </button>
+        </div>
     </div>
-</div>
 
-<!-- 用户信息管理区域 -->
-<div id="userSection" style="display:none;">
-    <h2>用户信息管理</h2>
-    <div id="userList">
-        <!-- 用户列表将在这里动态生成 -->
+    <!-- 功能标签页 -->
+    <div class="tab-container">
+        <button class="tab-button active" id="fangzhuBtn" onclick="showFangzhu()">
+            <i class="bi bi-house-door"></i> 房主信息管理
+        </button>
+        <button class="tab-button" id="userBtn" onclick="showUser()">
+            <i class="bi bi-people"></i> 用户信息管理
+        </button>
+    </div>
+
+    <!-- 房主信息管理区域 -->
+    <div class="content-section" id="fangzhuSection">
+        <div class="section-title">
+            <i class="bi bi-house-door"></i> 房主信息管理
+        </div>
+
+        <div id="fangzhuList">
+            <!-- 房主列表将在这里动态生成 -->
+        </div>
+    </div>
+
+    <!-- 用户信息管理区域 -->
+    <div class="content-section" id="userSection" style="display:none;">
+        <div class="section-title">
+            <i class="bi bi-people"></i> 用户信息管理
+        </div>
+
+        <div id="userList">
+            <!-- 用户列表将在这里动态生成 -->
+        </div>
     </div>
 </div>
 
 <!-- 修改房主信息的模态框 -->
-<div id="editFangzhuModal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:20px;border:1px solid #ccc;">
-    <h2>修改房主信息</h2>
-    <form id="editFangzhuForm">
-        <input type="hidden" id="editFangzhuId">
-        <div>
-            <label>房主账号：</label>
-            <input type="text" id="editFangzhuZhanghao" readonly>
+<div class="modal-overlay" id="editFangzhuModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">
+                <i class="bi bi-pencil"></i> 修改房主信息
+            </h3>
+            <button class="modal-close" onclick="closeModal('editFangzhuModal')">&times;</button>
         </div>
-        <div>
-            <label>房主姓名：</label>
-            <input type="text" id="editFangzhuXingming">
+        <div class="modal-body">
+            <form id="editFangzhuForm">
+                <input type="hidden" id="editFangzhuId">
+
+                <div class="form-group">
+                    <label class="form-label">房主账号</label>
+                    <input type="text" class="form-control" id="editFangzhuZhanghao" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">房主姓名</label>
+                    <input type="text" class="form-control" id="editFangzhuXingming">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">性别</label>
+                    <select class="form-select" id="editFangzhuXingbie">
+                        <option value="男">男</option>
+                        <option value="女">女</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">手机号</label>
+                    <input type="text" class="form-control" id="editFangzhuShouji">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">身份证</label>
+                    <input type="text" class="form-control" id="editFangzhuShenfenzheng">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">新密码</label>
+                    <input type="password" class="form-control" id="editFangzhuMima" placeholder="留空则不修改">
+                </div>
+            </form>
         </div>
-        <div>
-            <label>性别：</label>
-            <select id="editFangzhuXingbie">
-                <option value="男">男</option>
-                <option value="女">女</option>
-            </select>
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="closeModal('editFangzhuModal')">取消</button>
+            <button class="btn-primary" onclick="submitFangzhuUpdate()">提交修改</button>
         </div>
-        <div>
-            <label>手机号：</label>
-            <input type="text" id="editFangzhuShouji">
-        </div>
-        <div>
-            <label>身份证：</label>
-            <input type="text" id="editFangzhuShenfenzheng">
-        </div>
-        <div>
-            <label>新密码：</label>
-            <input type="password" id="editFangzhuMima" placeholder="留空则不修改">
-        </div>
-        <div>
-            <button type="button" onclick="closeModal('editFangzhuModal')">取消</button>
-            <button type="button" onclick="submitFangzhuUpdate()">提交</button>
-        </div>
-    </form>
+    </div>
 </div>
 
 <!-- 修改用户信息的模态框 -->
-<div id="editUserModal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:20px;border:1px solid #ccc;">
-    <h2>修改用户信息</h2>
-    <form id="editUserForm">
-        <input type="hidden" id="editUserId">
-        <div>
-            <label>用户名：</label>
-            <input type="text" id="editUserYonghuming" readonly>
+<div class="modal-overlay" id="editUserModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">
+                <i class="bi bi-pencil"></i> 修改用户信息
+            </h3>
+            <button class="modal-close" onclick="closeModal('editUserModal')">&times;</button>
         </div>
-        <div>
-            <label>姓名：</label>
-            <input type="text" id="editUserXingming">
+        <div class="modal-body">
+            <form id="editUserForm">
+                <input type="hidden" id="editUserId">
+
+                <div class="form-group">
+                    <label class="form-label">用户名</label>
+                    <input type="text" class="form-control" id="editUserYonghuming" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">姓名</label>
+                    <input type="text" class="form-control" id="editUserXingming">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">性别</label>
+                    <select class="form-select" id="editUserXingbie">
+                        <option value="男">男</option>
+                        <option value="女">女</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">职业</label>
+                    <input type="text" class="form-control" id="editUserZhiye">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">手机号</label>
+                    <input type="text" class="form-control" id="editUserLianxidianhua">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">身份证</label>
+                    <input type="text" class="form-control" id="editUserShenfenzheng">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">新密码</label>
+                    <input type="password" class="form-control" id="editUserMima" placeholder="留空则不修改">
+                </div>
+            </form>
         </div>
-        <div>
-            <label>性别：</label>
-            <select id="editUserXingbie">
-                <option value="男">男</option>
-                <option value="女">女</option>
-            </select>
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="closeModal('editUserModal')">取消</button>
+            <button class="btn-primary" onclick="submitUserUpdate()">提交修改</button>
         </div>
-        <div>
-            <label>职业：</label>
-            <input type="text" id="editUserZhiye">
-        </div>
-        <div>
-            <label>手机号：</label>
-            <input type="text" id="editUserLianxidianhua">
-        </div>
-        <div>
-            <label>身份证：</label>
-            <input type="text" id="editUserShenfenzheng">
-        </div>
-        <div>
-            <label>新密码：</label>
-            <input type="password" id="editUserMima" placeholder="留空则不修改">
-        </div>
-        <div>
-            <button type="button" onclick="closeModal('editUserModal')">取消</button>
-            <button type="button" onclick="submitUserUpdate()">提交</button>
-        </div>
-    </form>
+    </div>
 </div>
 
 <script>
@@ -126,17 +598,20 @@
         loadFangzhuData();
     };
 
-
     // 显示房主管理区域
     function showFangzhu() {
         document.getElementById('fangzhuSection').style.display = 'block';
         document.getElementById('userSection').style.display = 'none';
+        document.getElementById('fangzhuBtn').classList.add('active');
+        document.getElementById('userBtn').classList.remove('active');
     }
 
     // 显示用户管理区域
     function showUser() {
         document.getElementById('fangzhuSection').style.display = 'none';
         document.getElementById('userSection').style.display = 'block';
+        document.getElementById('fangzhuBtn').classList.remove('active');
+        document.getElementById('userBtn').classList.add('active');
         loadUserData();
     }
 
@@ -176,12 +651,20 @@
         container.innerHTML = '';
 
         if (fangzhuList.length === 0) {
-            container.innerHTML = '<p>没有房主数据</p>';
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="bi bi-house"></i>
+                    </div>
+                    <h3 class="empty-title">没有房主数据</h3>
+                    <p class="empty-text">当前系统中没有注册的房主信息</p>
+                </div>
+            `;
             return;
         }
 
         const table = document.createElement('table');
-        table.border = '1';
+        table.className = 'data-table';
 
         // 表头
         const thead = document.createElement('thead');
@@ -230,16 +713,20 @@
 
             // 操作
             const actionCell = document.createElement('td');
+            actionCell.style.display = 'flex';
+            actionCell.style.gap = '10px';
 
             // 编辑按钮
             const editBtn = document.createElement('button');
-            editBtn.textContent = '编辑';
+            editBtn.className = 'action-button btn-edit';
+            editBtn.innerHTML = '<i class="bi bi-pencil"></i> 编辑';
             editBtn.onclick = () => openFangzhuEditModal(fangzhu);
             actionCell.appendChild(editBtn);
 
             // 删除按钮
             const deleteBtn = document.createElement('button');
-            deleteBtn.textContent = '删除';
+            deleteBtn.className = 'action-button btn-delete';
+            deleteBtn.innerHTML = '<i class="bi bi-trash"></i> 删除';
             deleteBtn.onclick = () => deleteFangzhu(fangzhu.id);
             actionCell.appendChild(deleteBtn);
 
@@ -258,12 +745,20 @@
         container.innerHTML = '';
 
         if (userList.length === 0) {
-            container.innerHTML = '<p>没有用户数据</p>';
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="bi bi-person"></i>
+                    </div>
+                    <h3 class="empty-title">没有用户数据</h3>
+                    <p class="empty-text">当前系统中没有注册的用户信息</p>
+                </div>
+            `;
             return;
         }
 
         const table = document.createElement('table');
-        table.border = '1';
+        table.className = 'data-table';
 
         // 表头
         const thead = document.createElement('thead');
@@ -317,16 +812,20 @@
 
             // 操作
             const actionCell = document.createElement('td');
+            actionCell.style.display = 'flex';
+            actionCell.style.gap = '10px';
 
             // 编辑按钮
             const editBtn = document.createElement('button');
-            editBtn.textContent = '编辑';
+            editBtn.className = 'action-button btn-edit';
+            editBtn.innerHTML = '<i class="bi bi-pencil"></i> 编辑';
             editBtn.onclick = () => openUserEditModal(user);
             actionCell.appendChild(editBtn);
 
             // 删除按钮
             const deleteBtn = document.createElement('button');
-            deleteBtn.textContent = '删除';
+            deleteBtn.className = 'action-button btn-delete';
+            deleteBtn.innerHTML = '<i class="bi bi-trash"></i> 删除';
             deleteBtn.onclick = () => deleteUser(user.id);
             actionCell.appendChild(deleteBtn);
 
@@ -348,7 +847,8 @@
         document.getElementById('editFangzhuShouji').value = fangzhu.shouji;
         document.getElementById('editFangzhuShenfenzheng').value = fangzhu.shenfenzheng;
         document.getElementById('editFangzhuMima').value = '';
-        document.getElementById('editFangzhuModal').style.display = 'block';
+
+        document.getElementById('editFangzhuModal').classList.add('active');
     }
 
     // 打开用户编辑模态框
@@ -361,12 +861,13 @@
         document.getElementById('editUserLianxidianhua').value = user.lianxidianhua;
         document.getElementById('editUserShenfenzheng').value = user.shenfenzheng;
         document.getElementById('editUserMima').value = '';
-        document.getElementById('editUserModal').style.display = 'block';
+
+        document.getElementById('editUserModal').classList.add('active');
     }
 
     // 关闭模态框
     function closeModal(modalId) {
-        document.getElementById(modalId).style.display = 'none';
+        document.getElementById(modalId).classList.remove('active');
     }
 
     // 提交房主信息修改
@@ -402,6 +903,7 @@
                 alert('修改出错: ' + error.message);
             });
     }
+
     //退出登录
     function logout() {
         // 清除所有sessionStorage
@@ -409,6 +911,7 @@
         // 跳转到首页
         window.location.href = 'Index.html';
     };
+
     // 提交用户信息修改
     function submitUserUpdate() {
         const formData = new FormData();
