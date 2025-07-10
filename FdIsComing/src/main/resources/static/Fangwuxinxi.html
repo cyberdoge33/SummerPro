@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>优雅房源 - 房屋信息展示</title>
+    <title>涨租了 - 房源一览</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -492,8 +492,8 @@
                 </a>
             </div>
 
-            <h1 class="app-title">优雅房源</h1>
-            <p class="app-subtitle">发现您梦想中的居所</p>
+            <h1 class="app-title">涨租了</h1>
+            <p class="app-subtitle">让您和房主零距离沟通</p>
         </div>
     </div>
 
@@ -741,9 +741,8 @@
                             :disabled="currentHouse.fangwuzhuangtai === '已租'" data-bs-dismiss="modal">
                         <i class="bi bi-calendar-plus me-1"></i> 预约看房
                     </button>
-                    <button type="button" class="btn btn-primary" @click="CommentHouse(currentHouse)"
-                             data-bs-dismiss="modal">
-                        <i class="bi bi-calendar-plus me-1"></i> 房屋评论
+                    <button type="button" class="btn btn-primary" @click="CommentHouse(currentHouse)" data-bs-dismiss="modal">
+                        <i class="bi bi-chat-square-text me-1"></i> 房屋评论
                     </button>
                 </div>
             </div>

@@ -2,68 +2,433 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>房屋评论</title>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4cc9f0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .back-btn {
+            background-color: white;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+        }
+
+        .back-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .back-btn i {
+            margin-right: 8px;
+        }
+
+        .house-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            margin-bottom: 30px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .house-title {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+
+        .house-price {
+            color: #e63946;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .house-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            color: #6c757d;
+        }
+
+        .info-item i {
+            margin-right: 8px;
+            color: var(--primary-color);
+        }
+
+        .house-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 3px;
+        }
+
+        .detail-value {
+            color: var(--dark-color);
+            font-weight: 500;
+        }
+
+        .comments-section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            color: var(--primary-color);
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .comment-form {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+        }
+
+        .comment-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            resize: vertical;
+            min-height: 120px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        .comment-textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .submit-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s, transform 0.2s;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .comment-list {
+            margin-top: 20px;
+        }
+
+        .comment-item {
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .comment-item:last-child {
+            border-bottom: none;
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .comment-author {
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .comment-username {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-left: 8px;
+        }
+
+        .comment-date {
+            font-size: 0.85em;
+            color: #6c757d;
+        }
+
+        .comment-content {
+            color: #495057;
+            line-height: 1.6;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #6c757d;
+            padding: 20px;
+            font-style: italic;
+        }
+
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            width: 2rem;
+            height: 2rem;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .house-card, .comments-section, .comment-form {
+                padding: 20px;
+            }
+
+            .header-actions {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .house-details {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-<div id="houseInfo">
-    <h2 id="fangwumingcheng"></h2>
-    <p id="xiaoqu"></p>
-    <p id="xiangxidizhi"></p>
-</div>
+<div class="container mt-4">
+    <div class="header-actions">
+        <button class="back-btn" onclick="goBack()">
+            <i class="bi bi-arrow-left"></i> 返回房屋详情
+        </button>
+    </div>
 
-<div id="commentsSection">
-    <h3>评论列表</h3>
-    <div id="commentsList"></div>
-</div>
+    <div class="house-card">
+        <h1 class="house-title" id="fangwumingcheng"></h1>
+        <div class="house-price" id="yuezujiage"></div>
+        <div class="house-info">
+            <div class="info-item">
+                <i class="bi bi-building"></i>
+                <span id="xiaoqu"></span>
+            </div>
+            <div class="info-item">
+                <i class="bi bi-geo-alt"></i>
+                <span id="xiangxidizhi"></span>
+            </div>
+        </div>
 
-<div id="addCommentSection">
-    <h3>添加评论</h3>
-    <textarea id="commentContent" rows="4" cols="50"></textarea>
-    <button onclick="submitComment()">提交评论</button>
+        <div class="house-details">
+            <div class="detail-item">
+                <span class="detail-label">房屋类型</span>
+                <span class="detail-value" id="fangwuleixing"></span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">租赁方式</span>
+                <span class="detail-value" id="zulinfangshi"></span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">朝向楼层</span>
+                <span class="detail-value" id="chaoxianglouceng"></span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">面积</span>
+                <span class="detail-value" id="mianji"></span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">房屋状态</span>
+                <span class="detail-value" id="fangwuzhuangtai"></span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">押金</span>
+                <span class="detail-value" id="yajin"></span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">发布日期</span>
+                <span class="detail-value" id="faburiqi"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="comments-section">
+        <h2 class="section-title">评论列表</h2>
+        <div id="commentsList" class="comment-list">
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="comment-form">
+        <h2 class="section-title">添加评论</h2>
+        <textarea id="commentContent" class="comment-textarea" placeholder="写下您的评论..."></textarea>
+        <button class="submit-btn" onclick="submitComment()">
+            <i class="bi bi-send"></i> 提交评论
+        </button>
+    </div>
 </div>
 
 <script>
     // 获取房屋信息
-    const house = JSON.parse(sessionStorage.getItem('commentHouse'));
+    const house = JSON.parse(sessionStorage.getItem('commentHouse')) || {
+        fangwumingcheng: '加载中...',
+        fangwuleixing: '',
+        tupian: '',
+        zulinfangshi: '',
+        chaoxianglouceng: '',
+        mianji: '',
+        fangwuzhuangtai: '',
+        xiaoqu: '',
+        xiangxidizhi: '',
+        yuezujiage: 0,
+        yajin: 0,
+        fangwusheshi: '',
+        fangwuxiangqing: '',
+        faburiqi: new Date(),
+        fangzhuzhanghao: '',
+        fangzhuxingming: ''
+    };
     const houseId = house.id;
 
     // 页面加载时显示房屋信息和评论
     window.onload = function() {
         // 显示房屋基本信息
-        document.getElementById('fangwumingcheng').textContent = house.fangwumingcheng;
-        document.getElementById('xiaoqu').textContent = '小区: ' + house.xiaoqu;
-        document.getElementById('xiangxidizhi').textContent = '详细地址: ' + house.xiangxidizhi;
+        displayHouseInfo(house);
 
         // 加载评论
         loadComments();
     };
 
+    // 显示房屋详细信息
+    function displayHouseInfo(house) {
+        document.getElementById('fangwumingcheng').textContent = house.fangwumingcheng || '未命名房屋';
+        document.getElementById('yuezujiage').textContent = `¥${house.yuezujiage || 0}/月`;
+        document.getElementById('xiaoqu').textContent = house.xiaoqu || '小区信息暂缺';
+        document.getElementById('xiangxidizhi').textContent = house.xiangxidizhi || '地址信息暂缺';
+        document.getElementById('fangwuleixing').textContent = house.fangwuleixing || '类型信息暂缺';
+        document.getElementById('zulinfangshi').textContent = house.zulinfangshi || '租赁方式暂缺';
+        document.getElementById('chaoxianglouceng').textContent = house.chaoxianglouceng || '朝向楼层暂缺';
+        document.getElementById('mianji').textContent = house.mianji ? `${house.mianji}㎡` : '面积信息暂缺';
+        document.getElementById('fangwuzhuangtai').textContent = house.fangwuzhuangtai || '状态信息暂缺';
+        document.getElementById('yajin').textContent = house.yajin ? `¥${house.yajin}` : '押金信息暂缺';
+        document.getElementById('faburiqi').textContent = formatDate(house.faburiqi) || '日期信息暂缺';
+    }
+
+    // 返回上一页
+    function goBack() {
+        window.location.href = 'Fangwuxinxi.html';
+    }
+
     // 加载评论
     function loadComments() {
+        const commentsList = document.getElementById('commentsList');
+        commentsList.innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
+
         axios.get('/Pinglun/selectById?id=' + houseId)
             .then(response => {
-                const commentsList = document.getElementById('commentsList');
                 commentsList.innerHTML = '';
 
                 if (response.data && response.data.data && response.data.data.length > 0) {
                     response.data.data.forEach(comment => {
                         const commentDiv = document.createElement('div');
+                        commentDiv.className = 'comment-item';
                         commentDiv.innerHTML = `
-                                <p><strong>${comment.xingming}</strong> (${comment.yonghuming})</p>
-                                <p>${comment.comment}</p>
-                                <p>${new Date(comment.addtime).toLocaleString()}</p>
-                                <hr>
-                            `;
+                            <div class="comment-header">
+                                <div>
+                                    <span class="comment-author">${escapeHtml(comment.xingming)}</span>
+                                    <span class="comment-username">(${escapeHtml(comment.yonghuming)})</span>
+                                </div>
+                                <span class="comment-date">${formatDate(comment.addtime)}</span>
+                            </div>
+                            <div class="comment-content">${escapeHtml(comment.comment)}</div>
+                        `;
                         commentsList.appendChild(commentDiv);
                     });
                 } else {
-                    commentsList.innerHTML = '<p>暂无评论</p>';
+                    commentsList.innerHTML = '<div class="empty-message">暂无评论，来发表第一条评论吧~</div>';
                 }
             })
             .catch(error => {
                 console.error('加载评论失败:', error);
-                alert('加载评论失败');
+                commentsList.innerHTML = '<div class="empty-message">评论加载失败，请刷新重试</div>';
             });
     }
 
@@ -71,7 +436,7 @@
     function submitComment() {
         const commentContent = document.getElementById('commentContent').value.trim();
         if (!commentContent) {
-            alert('评论内容不能为空');
+            showAlert('评论内容不能为空', 'warning');
             return;
         }
 
@@ -79,7 +444,7 @@
         const xingming = sessionStorage.getItem('Xingming');
 
         if (!yonghuming || !xingming) {
-            alert('用户信息获取失败，请重新登录');
+            showAlert('用户信息获取失败，请重新登录', 'danger');
             return;
         }
 
@@ -90,6 +455,11 @@
         formData.append('id', houseId);
         formData.append('comment', commentContent);
 
+        const submitBtn = document.querySelector('.submit-btn');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="bi bi-arrow-repeat spin-icon"></i> 提交中...';
+
         axios.post('/Pinglun/addPinglun', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
@@ -97,18 +467,74 @@
         })
             .then(response => {
                 if (response.data && response.data.code === 200) {
-                    alert('评论成功');
+                    showAlert('评论成功', 'success');
                     document.getElementById('commentContent').value = '';
                     loadComments(); // 刷新评论列表
                 } else {
-                    alert('评论失败: ' + (response.data.message || ''));
+                    throw new Error(response.data.message || '评论失败');
                 }
             })
             .catch(error => {
                 console.error('评论提交失败:', error);
-                alert('评论提交失败: ' + (error.response?.data?.message || error.message));
+                showAlert('评论提交失败: ' + (error.response?.data?.message || error.message), 'danger');
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
             });
     }
+
+    // 显示提示消息
+    function showAlert(message, type = 'info') {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.style.position = 'fixed';
+        alertDiv.style.top = '20px';
+        alertDiv.style.right = '20px';
+        alertDiv.style.zIndex = '1000';
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+
+        document.body.appendChild(alertDiv);
+
+        setTimeout(() => {
+            const bootstrapAlert = new bootstrap.Alert(alertDiv);
+            bootstrapAlert.close();
+        }, 5000);
+    }
+
+    // HTML转义函数，防止XSS攻击
+    function escapeHtml(unsafe) {
+        if (!unsafe) return '';
+        return unsafe.toString()
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    // 格式化日期
+    function formatDate(dateInput) {
+        if (!dateInput) return '';
+
+        const date = new Date(dateInput);
+        if (isNaN(date.getTime())) return '';
+
+        return date.toLocaleString('zh-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
+    }
 </script>
+
+<!-- Bootstrap JS 和 Popper.js -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
