@@ -76,13 +76,13 @@ CREATE TABLE `fangzhu`  (
 -- ----------------------------
 -- Records of fangzhu
 -- ----------------------------
-INSERT INTO `fangzhu` VALUES (21, '2021-03-04 18:46:53', '房主账号1', '123456', '房主姓名1', '男', 'http://localhost:8080/springboot08hr3/upload/fangzhu_touxiang1.jpg', '13823888881', '440300199101010001');
-INSERT INTO `fangzhu` VALUES (22, '2021-03-04 18:46:53', '房主账号2', '123456', '房主姓名2', '男', 'http://localhost:8080/springboot08hr3/upload/fangzhu_touxiang2.jpg', '13823888882', '440300199202020002');
-INSERT INTO `fangzhu` VALUES (23, '2021-03-04 18:46:53', '房主账号3', '123456', '房主姓名3', '男', 'http://localhost:8080/springboot08hr3/upload/fangzhu_touxiang3.jpg', '13823888883', '440300199303030003');
-INSERT INTO `fangzhu` VALUES (24, '2021-03-04 18:46:53', '房主账号4', '123456', '房主姓名4', '男', 'http://localhost:8080/springboot08hr3/upload/fangzhu_touxiang4.jpg', '13823888884', '440300199404040004');
-INSERT INTO `fangzhu` VALUES (25, '2021-03-04 18:46:53', '房主账号5', '123456', '房主姓名5', '男', 'http://localhost:8080/springboot08hr3/upload/fangzhu_touxiang5.jpg', '13823888885', '440300199505050005');
-INSERT INTO `fangzhu` VALUES (26, '2021-03-04 18:46:53', '房主账号6', '123456', '房主姓名6', '男', 'http://localhost:8080/springboot08hr3/upload/fangzhu_touxiang6.jpg', '13823888886', '440300199606060006');
-INSERT INTO `fangzhu` VALUES (1614855337500, '2021-03-04 18:55:37', '房主账号7', '123456', '张明', '男', 'http://localhost:8080/springboot08hr3/upload/1614855356133.jpg', '12312312312', '123456789789456123');
+INSERT INTO `fangzhu` VALUES (21, '2021-03-04 18:46:53', 'a001', 'a123456', '房主姓名1', '男', 'http://localhost:8080/springboot08hr3/upload/fangzhu_touxiang1.jpg', '13823888881', '440300199101010001');
+INSERT INTO `fangzhu` VALUES (22, '2021-03-04 18:46:53', 'a002', 'a123456', '房主姓名2', '男', 'http://localhost:8080/springboot08hr3/upload/fangzhu_touxiang2.jpg', '13823888882', '440300199202020002');
+INSERT INTO `fangzhu` VALUES (23, '2021-03-04 18:46:53', 'a003', 'a123456', '房主姓名3', '男', 'http://localhost:8080/springboot08hr3/upload/fangzhu_touxiang3.jpg', '13823888883', '440300199303030003');
+INSERT INTO `fangzhu` VALUES (24, '2021-03-04 18:46:53', 'a004', 'a123456', '房主姓名4', '男', 'http://localhost:8080/springboot08hr3/upload/fangzhu_touxiang4.jpg', '13823888884', '440300199404040004');
+INSERT INTO `fangzhu` VALUES (25, '2021-03-04 18:46:53', 'a005', 'a123456', '房主姓名5', '男', 'http://localhost:8080/springboot08hr3/upload/fangzhu_touxiang5.jpg', '13823888885', '440300199505050005');
+INSERT INTO `fangzhu` VALUES (26, '2021-03-04 18:46:53', 'a006', 'a123456', '房主姓名6', '男', 'http://localhost:8080/springboot08hr3/upload/fangzhu_touxiang6.jpg', '13823888886', '440300199606060006');
+INSERT INTO `fangzhu` VALUES (1614855337500, '2021-03-04 18:55:37', 'a007', 'a123456', '张明', '男', 'http://localhost:8080/springboot08hr3/upload/1614855356133.jpg', '12312312312', '123456789789456123');
 
 
 -- ----------------------------
@@ -125,13 +125,13 @@ CREATE TABLE `yonghu`  (
 -- ----------------------------
 -- Records of yonghu
 -- ----------------------------
-INSERT INTO `yonghu` VALUES (11, '2021-03-04 18:46:53', '用户名1', '123456', '姓名1', 'http://localhost:8080/springboot08hr3/upload/yonghu_touxiang1.jpg', '男', '职业1', '13823888881', '440300199101010001');
-INSERT INTO `yonghu` VALUES (12, '2021-03-04 18:46:53', '用户名2', '123456', '姓名2', 'http://localhost:8080/springboot08hr3/upload/yonghu_touxiang2.jpg', '男', '职业2', '13823888882', '440300199202020002');
-INSERT INTO `yonghu` VALUES (13, '2021-03-04 18:46:53', '用户名3', '123456', '姓名3', 'http://localhost:8080/springboot08hr3/upload/yonghu_touxiang3.jpg', '男', '职业3', '13823888883', '440300199303030003');
-INSERT INTO `yonghu` VALUES (14, '2021-03-04 18:46:53', '用户名4', '123456', '姓名4', 'http://localhost:8080/springboot08hr3/upload/yonghu_touxiang4.jpg', '男', '职业4', '13823888884', '440300199404040004');
-INSERT INTO `yonghu` VALUES (15, '2021-03-04 18:46:53', '用户名5', '123456', '姓名5', 'http://localhost:8080/springboot08hr3/upload/yonghu_touxiang5.jpg', '男', '职业5', '13823888885', '440300199505050005');
-INSERT INTO `yonghu` VALUES (16, '2021-03-04 18:46:53', '用户名6', '123456', '姓名6', 'http://localhost:8080/springboot08hr3/upload/yonghu_touxiang6.jpg', '男', '职业6', '13823888886', '440300199606060006');
-INSERT INTO `yonghu` VALUES (1614855579738, '2021-03-04 18:59:39', '2', '2', '陈一', 'http://localhost:8080/springboot08hr3/upload/1614855594396.jpg', '女', 'IT', '12312312312', '123456789789456123');
+INSERT INTO `yonghu` VALUES (11, '2021-03-04 18:46:53', 'b001', 'b123456', '姓名1', 'http://localhost:8080/springboot08hr3/upload/yonghu_touxiang1.jpg', '男', '职业1', '13823888881', '440300199101010001');
+INSERT INTO `yonghu` VALUES (12, '2021-03-04 18:46:53', 'b002', 'b123456', '姓名2', 'http://localhost:8080/springboot08hr3/upload/yonghu_touxiang2.jpg', '男', '职业2', '13823888882', '440300199202020002');
+INSERT INTO `yonghu` VALUES (13, '2021-03-04 18:46:53', 'b003', 'b123456', '姓名3', 'http://localhost:8080/springboot08hr3/upload/yonghu_touxiang3.jpg', '男', '职业3', '13823888883', '440300199303030003');
+INSERT INTO `yonghu` VALUES (14, '2021-03-04 18:46:53', 'b004', 'b123456', '姓名4', 'http://localhost:8080/springboot08hr3/upload/yonghu_touxiang4.jpg', '男', '职业4', '13823888884', '440300199404040004');
+INSERT INTO `yonghu` VALUES (15, '2021-03-04 18:46:53', 'b005', 'b123456', '姓名5', 'http://localhost:8080/springboot08hr3/upload/yonghu_touxiang5.jpg', '男', '职业5', '13823888885', '440300199505050005');
+INSERT INTO `yonghu` VALUES (16, '2021-03-04 18:46:53', 'b006', 'b123456', '姓名6', 'http://localhost:8080/springboot08hr3/upload/yonghu_touxiang6.jpg', '男', '职业6', '13823888886', '440300199606060006');
+INSERT INTO `yonghu` VALUES (1614855579738, '2021-03-04 18:59:39', 'b007', 'b123456', '陈一', 'http://localhost:8080/springboot08hr3/upload/1614855594396.jpg', '女', 'IT', '12312312312', '123456789789456123');
 
 -- ----------------------------
 -- Table structure for yuyuekanfang
@@ -174,3 +174,34 @@ INSERT INTO `yuyuekanfang` VALUES (56, '2021-03-04 18:46:53', '预约编号6', '
 INSERT INTO `yuyuekanfang` VALUES (1614855637716, '2021-03-04 19:00:37', '2021341902829609414', '新记家园605房', '3房1厅', '可租', '新记家园', 2000, '2000', 12, '24000', '2021-03-04 19:00:35', '2', '陈一', '123456789789456123', '12312312312', '1', '张明', '是', '可以');
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- ----------------------------
+-- Table structure for pinglun
+-- ----------------------------
+DROP TABLE IF EXISTS `pinglun`;
+CREATE TABLE `pinglun` (
+  `cid` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `addtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `yonghuming` varchar(200) NOT NULL COMMENT '用户名',
+  `xingming` varchar(200) DEFAULT NULL COMMENT '姓名',
+  `id` varchar(100) NOT NULL COMMENT '房屋id',
+  `comment` varchar(1000) NOT NULL COMMENT '评论',
+  PRIMARY KEY (`cid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='评论';
+
+-- ----------------------------
+-- Records of pinglun
+-- ----------------------------
+INSERT INTO `pinglun` (addtime, yonghuming, xingming, id, comment) VALUES 
+('2021-03-04 18:46:53', 'b001', '姓名1', '41', '房子采光非常好，客厅朝南阳光充足，户型方正没有浪费空间。小区环境安静，就是厨房稍小了点，整体很满意！'),
+('2021-03-04 18:46:53', 'b002', '姓名2', '42', '看了三套房后最终选定这家，精装修标准高，地板和卫浴都是品牌货。交通便利，步行5分钟到地铁站，推荐给上班族！'),
+('2021-03-04 18:46:53', 'b003', '姓名3', '43', '房东很热情，房子维护得很新。特别喜欢大阳台的设计，视野开阔能看到公园。就是停车位有点紧张，需要提前申请。'),
+('2021-03-04 18:46:53', 'b004', '姓名4', '44', '学区房性价比超高！带孩子看了附近的学校，教学设施完善。房子虽然不算大但布局合理，储物空间设计得很巧妙。'),
+('2021-03-04 18:46:53', 'b005', '姓名5', '45', '复式结构很有特色，楼上卧室私密性好。小区物业管理严格，24小时安保。建议房东可以更新下空调设备就更完美了。'),
+('2021-03-04 18:46:53', 'b006', '姓名6', '46', '法式装修风格很有格调，层高3米不压抑。周边生活配套齐全，超市、餐馆都在500米范围内。已交定金，期待入住！');
+
+
+
+
+
+
