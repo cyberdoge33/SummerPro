@@ -51,6 +51,17 @@ private FangwuxinxiMapper fangwuxinxiMapper;
         if (result < 1){
             throw new RuntimeException("添加失败");
         }
+        //redis异步刷新缓存
+        List<Fangwuxinxi> dbList = fangwuxinxiMapper.selectList(null);
+        //数据库结果写入Redis
+        if (!dbList.isEmpty()) {
+            redisTemplate.opsForValue().set(
+                    CACHE_KEY,
+                    dbList,
+                    30,
+                    TimeUnit.MINUTES
+            );
+        }
     }
     //根据房主id查询
     @Override
