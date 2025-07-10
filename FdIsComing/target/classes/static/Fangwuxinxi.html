@@ -741,6 +741,10 @@
                             :disabled="currentHouse.fangwuzhuangtai === '已租'" data-bs-dismiss="modal">
                         <i class="bi bi-calendar-plus me-1"></i> 预约看房
                     </button>
+                    <button type="button" class="btn btn-primary" @click="CommentHouse(currentHouse)"
+                             data-bs-dismiss="modal">
+                        <i class="bi bi-calendar-plus me-1"></i> 房屋评论
+                    </button>
                 </div>
             </div>
         </div>
@@ -856,9 +860,14 @@
                 this.currentHouse = { ...house };
                 this.houseDetailModal.show();
             },
+            ///////////预定房屋携带房屋信息跳转
             reserveHouse(house) {
                 sessionStorage.setItem('reservedHouse', JSON.stringify(house));
                 window.location.href = "ReserveHouse.html";
+            },
+            CommentHouse(house) {
+                sessionStorage.setItem('commentHouse', JSON.stringify(house));
+                window.location.href = "Comment.html";
             },
             applyFilter() {
                 console.log("应用筛选器:", this.filter);

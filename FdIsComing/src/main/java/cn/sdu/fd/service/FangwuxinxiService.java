@@ -17,4 +17,6 @@ public interface FangwuxinxiService {
     void update(Fangwuxinxi fangwuxinxi);
     //删除房屋信息
     void delete(Long id);
+    //按id查找
+    Fangwuxinxi selectById(Long id);
 }

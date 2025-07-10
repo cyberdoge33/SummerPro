@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>房屋评论</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+<div id="houseInfo">
+    <h2 id="fangwumingcheng"></h2>
+    <p id="xiaoqu"></p>
+    <p id="xiangxidizhi"></p>
+</div>
+
+<div id="commentsSection">
+    <h3>评论列表</h3>
+    <div id="commentsList"></div>
+</div>
+
+<div id="addCommentSection">
+    <h3>添加评论</h3>
+    <textarea id="commentContent" rows="4" cols="50"></textarea>
+    <button onclick="submitComment()">提交评论</button>
+</div>
+
+<script>
+    // 获取房屋信息
+    const house = JSON.parse(sessionStorage.getItem('commentHouse'));
+    const houseId = house.id;
+
+    // 页面加载时显示房屋信息和评论
+    window.onload = function() {
+        // 显示房屋基本信息
+        document.getElementById('fangwumingcheng').textContent = house.fangwumingcheng;
+        document.getElementById('xiaoqu').textContent = '小区: ' + house.xiaoqu;
+        document.getElementById('xiangxidizhi').textContent = '详细地址: ' + house.xiangxidizhi;
+
+        // 加载评论
+        loadComments();
+    };
+
+    // 加载评论
+    function loadComments() {
+        axios.get('/Pinglun/selectById?id=' + houseId)
+            .then(response => {
+                const commentsList = document.getElementById('commentsList');
+                commentsList.innerHTML = '';
+
+                if (response.data && response.data.data && response.data.data.length > 0) {
+                    response.data.data.forEach(comment => {
+                        const commentDiv = document.createElement('div');
+                        commentDiv.innerHTML = `
+                                <p><strong>${comment.xingming}</strong> (${comment.yonghuming})</p>
+                                <p>${comment.comment}</p>
+                                <p>${new Date(comment.addtime).toLocaleString()}</p>
+                                <hr>
+                            `;
+                        commentsList.appendChild(commentDiv);
+                    });
+                } else {
+                    commentsList.innerHTML = '<p>暂无评论</p>';
+                }
+            })
+            .catch(error => {
+                console.error('加载评论失败:', error);
+                alert('加载评论失败');
+            });
+    }
+
+    // 提交评论
+    function submitComment() {
+        const commentContent = document.getElementById('commentContent').value.trim();
+        if (!commentContent) {
+            alert('评论内容不能为空');
+            return;
+        }
+
+        const yonghuming = sessionStorage.getItem('Yonghuming');
+        const xingming = sessionStorage.getItem('Xingming');
+
+        if (!yonghuming || !xingming) {
+            alert('用户信息获取失败，请重新登录');
+            return;
+        }
+
+        // 创建FormData对象来发送multipart/form-data
+        const formData = new FormData();
+        formData.append('yonghuming', yonghuming);
+        formData.append('xingming', xingming);
+        formData.append('id', houseId);
+        formData.append('comment', commentContent);
+
+        axios.post('/Pinglun/addPinglun', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
+            .then(response => {
+                if (response.data && response.data.code === 200) {
+                    alert('评论成功');
+                    document.getElementById('commentContent').value = '';
+                    loadComments(); // 刷新评论列表
+                } else {
+                    alert('评论失败: ' + (response.data.message || ''));
+                }
+            })
+            .catch(error => {
+                console.error('评论提交失败:', error);
+                alert('评论提交失败: ' + (error.response?.data?.message || error.message));
+            });
+    }
+</script>
+</body>
+</html>

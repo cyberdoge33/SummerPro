@@ -94,4 +94,11 @@ public class FangwuxinxiController {
         }
         return ServerResult.ok();
     }
+    //根据id查询房屋信息
+    @RequestMapping("/Fangwuxinxi/selectById")
+    public ServerResult<Fangwuxinxi> selectById(Long id)
+    {
+        Fangwuxinxi fangwuxinxi = fangwuxinxiService.selectById(id);
+        return ServerResult.ok(fangwuxinxi);
+    }
 }
