@@ -4,241 +4,439 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>添加房屋信息</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            line-height: 1.6;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans SC', sans-serif;
         }
-        h1 {
+
+        body {
+            background-color: #f5f7fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image: linear-gradient(135deg, #e4e8f0 0%, #d1d8e4 100%);
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .back-button {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .back-button:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .back-button i {
+            margin-right: 8px;
+        }
+
+        .form-card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+            padding: 35px;
+            transition: all 0.3s ease;
+        }
+
+        .form-card:hover {
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .form-header {
             text-align: center;
-            color: #333;
             margin-bottom: 30px;
         }
-        form {
-            background: #f9f9f9;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+        .form-header h1 {
+            color: #2c3e50;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
         }
+
+        .form-header p {
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+        }
+
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
+
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
         label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #555;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 500;
+            font-size: 15px;
         }
+
+        label.required-field::after {
+            content: " *";
+            color: #e74c3c;
+        }
+
         input[type="text"],
         input[type="number"],
         select,
         textarea {
             width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
+            padding: 14px 16px;
+            border: 1px solid #e0e3e7;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s;
+            background-color: #f8f9fa;
         }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            background-color: white;
+        }
+
         textarea {
-            height: 100px;
+            min-height: 120px;
             resize: vertical;
         }
+
         .inline-group {
             display: flex;
-            gap: 10px;
+            gap: 12px;
         }
+
         .inline-group > div {
             flex: 1;
         }
-        button {
-            background: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            display: block;
-            margin: 20px auto 0;
-            width: 100%;
-        }
-        button:hover {
-            background: #45a049;
-        }
-        .message {
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 4px;
-            text-align: center;
-        }
-        .error {
-            background: #ffdddd;
-            color: #d8000c;
-        }
-        .success {
-            background: #ddffdd;
-            color: #4F8A10;
-        }
+
         .readonly-field {
             background-color: #f0f0f0;
             cursor: not-allowed;
         }
-        .required-field::after {
-            content: " *";
-            color: red;
+
+        .file-upload {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
         }
-        .header-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+
+        .file-upload input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
         }
-        .back-button {
-            background: #6c757d;
+
+        .file-upload-label {
+            display: block;
+            padding: 14px 16px;
+            border: 1px solid #e0e3e7;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            text-align: center;
+            cursor: pointer;
+            color: #7f8c8d;
+            transition: all 0.3s;
+        }
+
+        .file-upload-label:hover {
+            background-color: #eef2f7;
+            border-color: #3498db;
+        }
+
+        .image-preview {
+            margin-top: 15px;
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            display: block;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background-color: #3498db;
             color: white;
             border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
             cursor: pointer;
-            font-size: 14px;
-            text-decoration: none;
+            transition: all 0.3s;
+            margin-top: 15px;
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
         }
-        .back-button:hover {
-            background: #5a6268;
-            color: white;
+
+        .submit-btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .message {
+            margin-top: 25px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+        }
+
+        .success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full-width {
+                grid-column: span 1;
+            }
+
+            .form-card {
+                padding: 25px;
+            }
+
+            .header-container {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .back-button {
+                margin-top: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .form-card {
+                padding: 20px;
+            }
+
+            .inline-group {
+                flex-direction: column;
+                gap: 15px;
+            }
         }
     </style>
 </head>
 <body>
-<div id="app">
+<div class="container">
     <div class="header-container">
-        <a href="ManageFangwu.html" class="back-button">返回管理页面</a>
         <h1>添加房屋信息</h1>
-        <div style="width: 100px;"></div> <!-- 用于平衡布局 -->
+        <button class="back-button" onclick="window.location.href='ManageFangwu.html'">
+            <i>←</i> 返回管理页面
+        </button>
     </div>
 
-    <form @submit.prevent="submitForm">
-        <div class="form-group">
-            <label class="required-field">房屋名称:</label>
-            <input type="text" v-model="form.fangwumingcheng" required>
+    <div class="form-card">
+        <div class="form-header">
+            <h1>添加新房源</h1>
+            <p>填写详细信息以添加新的租赁房源</p>
         </div>
 
-        <div class="form-group">
-            <label class="required-field">房屋类型:</label>
-            <div class="inline-group">
-                <div>
-                    <select v-model="form.fangwuleixing_shi" required>
-                        <option value="">室</option>
-                        <option value="1室">1室</option>
-                        <option value="2室">2室</option>
-                        <option value="3室">3室</option>
-                        <option value="4室">4室</option>
-                        <option value="5室及以上">5室及以上</option>
-                    </select>
+        <div id="app">
+            <form @submit.prevent="submitForm">
+                <div class="form-grid">
+                    <!-- 房屋基本信息 -->
+                    <div class="form-group">
+                        <label class="required-field">房屋名称:</label>
+                        <input type="text" v-model="form.fangwumingcheng" required placeholder="请输入房屋名称">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="required-field">房屋类型:</label>
+                        <div class="inline-group">
+                            <div>
+                                <select v-model="form.fangwuleixing_shi" required>
+                                    <option value="">室</option>
+                                    <option value="1室">1室</option>
+                                    <option value="2室">2室</option>
+                                    <option value="3室">3室</option>
+                                    <option value="4室">4室</option>
+                                    <option value="5室及以上">5室及以上</option>
+                                </select>
+                            </div>
+                            <div>
+                                <select v-model="form.fangwuleixing_ting" required>
+                                    <option value="">厅</option>
+                                    <option value="0厅">0厅</option>
+                                    <option value="1厅">1厅</option>
+                                    <option value="2厅">2厅</option>
+                                    <option value="3厅">3厅</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="required-field">图片:</label>
+                        <div class="file-upload">
+                            <label class="file-upload-label">
+                                <span v-if="!form.tupian">选择上传图片</span>
+                                <span v-else>已选择图片</span>
+                            </label>
+                            <input type="file" @change="handleFileUpload" accept="image/*" required>
+                        </div>
+
+                    </div>
+
+                    <div class="form-group">
+                        <label class="required-field">租赁方式:</label>
+                        <select v-model="form.zulinfangshi" required>
+                            <option value="">请选择</option>
+                            <option value="整租">整租</option>
+                            <option value="合租">合租</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="required-field">房屋状态:</label>
+                        <select v-model="form.fangwuzhuangtai" required>
+                            <option value="">请选择</option>
+                            <option value="可租">可租</option>
+                            <option value="已租">已租</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="required-field">月租价格(元):</label>
+                        <input type="number" v-model.number="form.yuezujiage" min="0" required
+                               @input="validateNumber('yuezujiage')" placeholder="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="required-field">押金(元):</label>
+                        <input type="number" v-model.number="form.yajin" min="0" required
+                               @input="validateNumber('yajin')" placeholder="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="required-field">朝向/楼层:</label>
+                        <div class="inline-group">
+                            <div>
+                                <select v-model="form.chaoxiang" required>
+                                    <option value="">朝向</option>
+                                    <option value="南北">南北</option>
+                                    <option value="东西">东西</option>
+                                </select>
+                            </div>
+                            <div>
+                                <input type="text" v-model="form.louceng" placeholder="楼层" required
+                                       @input="validateFloor">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="required-field">面积(m²):</label>
+                        <input type="text" v-model="form.mianji" required
+                               @input="validateArea" placeholder="例如：85.5">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="required-field">小区:</label>
+                        <input type="text" v-model="form.xiaoqu" required placeholder="请输入小区名称">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="required-field">详细地址:</label>
+                        <input type="text" v-model="form.xiangxidizhi" required placeholder="请输入详细地址">
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label class="required-field">房屋设施:</label>
+                        <input type="text" v-model="form.fangwusheshi" placeholder="多个设施用逗号分隔，例如：空调,洗衣机,冰箱" required>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label class="required-field">房屋详情:</label>
+                        <textarea v-model="form.fangwuxiangqing" required placeholder="详细描述房屋特点、周边环境等信息"></textarea>
+                    </div>
+
+                    <!-- 房主信息 -->
+                    <div class="form-group">
+                        <label class="required-field">房主账号:</label>
+                        <input type="text" v-model="form.fangzhuzhanghao" :class="{ 'readonly-field': isLoggedIn }"
+                               :readonly="isLoggedIn" required placeholder="房主账号">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="required-field">房主姓名:</label>
+                        <input type="text" v-model="form.fangzhuxingming" :class="{ 'readonly-field': isLoggedIn }"
+                               :readonly="isLoggedIn" required placeholder="房主姓名">
+                    </div>
                 </div>
-                <div>
-                    <select v-model="form.fangwuleixing_ting" required>
-                        <option value="">厅</option>
-                        <option value="0厅">0厅</option>
-                        <option value="1厅">1厅</option>
-                        <option value="2厅">2厅</option>
-                        <option value="3厅">3厅</option>
-                    </select>
-                </div>
-            </div>
+
+                <button type="submit" class="submit-btn">提交房屋信息</button>
+            </form>
+
+            <div v-if="message" class="message" :class="{error: isError, success: !isError}">{{ message }}</div>
         </div>
-
-        <div class="form-group">
-            <label class="required-field">图片:</label>
-            <input type="file" @change="handleFileUpload" accept="image/*" required>
-        </div>
-
-        <div class="form-group">
-            <label class="required-field">租赁方式:</label>
-            <select v-model="form.zulinfangshi" required>
-                <option value="">请选择</option>
-                <option value="整租">整租</option>
-                <option value="合租">合租</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label class="required-field">房屋状态:</label>
-            <select v-model="form.fangwuzhuangtai" required>
-                <option value="">请选择</option>
-                <option value="可租">可租</option>
-                <option value="已租">已租</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label class="required-field">月租价格(元):</label>
-            <input type="number" v-model.number="form.yuezujiage" min="0" required @input="validateNumber('yuezujiage')">
-        </div>
-
-        <div class="form-group">
-            <label class="required-field">押金(元):</label>
-            <input type="number" v-model.number="form.yajin" min="0" required @input="validateNumber('yajin')">
-        </div>
-
-        <div class="form-group">
-            <label class="required-field">朝向/楼层:</label>
-            <div class="inline-group">
-                <div>
-                    <select v-model="form.chaoxiang" required>
-                        <option value="">朝向</option>
-                        <option value="南北">南北</option>
-                        <option value="东西">东西</option>
-                    </select>
-                </div>
-                <div>
-                    <input type="text" v-model="form.louceng" placeholder="楼层" required @input="validateFloor">
-                </div>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label class="required-field">面积(m²):</label>
-            <input type="text" v-model="form.mianji" required @input="validateArea">
-        </div>
-
-        <div class="form-group">
-            <label class="required-field">小区:</label>
-            <input type="text" v-model="form.xiaoqu" required>
-        </div>
-
-        <div class="form-group">
-            <label class="required-field">详细地址:</label>
-            <input type="text" v-model="form.xiangxidizhi" required>
-        </div>
-
-        <div class="form-group">
-            <label class="required-field">房屋设施:</label>
-            <input type="text" v-model="form.fangwusheshi" placeholder="多个设施用逗号分隔" required>
-        </div>
-
-        <div class="form-group">
-            <label class="required-field">房屋详情:</label>
-            <textarea v-model="form.fangwuxiangqing" rows="4" required></textarea>
-        </div>
-
-        <div class="form-group">
-            <label class="required-field">房主账号:</label>
-            <input type="text" v-model="form.fangzhuzhanghao" :class="{ 'readonly-field': isLoggedIn }" :readonly="isLoggedIn" required>
-        </div>
-
-        <div class="form-group">
-            <label class="required-field">房主姓名:</label>
-            <input type="text" v-model="form.fangzhuxingming" :class="{ 'readonly-field': isLoggedIn }" :readonly="isLoggedIn" required>
-        </div>
-
-        <button type="submit">提交</button>
-    </form>
-
-    <div v-if="message" class="message" :class="{error: isError, success: !isError}">{{ message }}</div>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/vue@3.2.31/dist/vue.global.min.js"></script>
@@ -269,6 +467,7 @@
                     fangzhuzhanghao: '',
                     fangzhuxingming: ''
                 },
+                imagePreview: null,
                 message: '',
                 isError: false,
                 isLoggedIn: false
@@ -295,7 +494,19 @@
             },
 
             handleFileUpload(event) {
-                this.form.tupian = event.target.files[0];
+                const file = event.target.files[0];
+                this.form.tupian = file;
+
+                // 创建预览
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.imagePreview = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    this.imagePreview = null;
+                }
             },
 
             validateNumber(field) {

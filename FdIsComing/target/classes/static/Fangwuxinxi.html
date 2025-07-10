@@ -1,70 +1,516 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>房屋信息展示</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+    <title>优雅房源 - 房屋信息展示</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
-        .house-card {
-            transition: all 0.3s ease;
-            margin-bottom: 20px;
+        :root {
+            --primary-color: #579ff6;
+            --secondary-color: #2872c1;
+            --accent-color: #f855a1;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --card-hover: #70f3f3;
+            --available: #4caf50;
+            --rented: #f44336;
+            --featured: #ff5722;
         }
-        .house-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Sans SC', sans-serif;
         }
-        .house-img {
-            height: 200px;
-            object-fit: cover;
+
+        body {
+            background-color: #f5f7fa;
+            background-image: linear-gradient(to bottom right, #ffffff, #e6f0ff);
+            color: #333;
+            min-height: 100vh;
         }
-        .price-tag {
-            font-size: 1.5rem;
-            color: #ff6b6b;
-            font-weight: bold;
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 0 0 30px 30px;
+            position: relative;
+            overflow: hidden;
         }
-        .status-available {
-            color: #20c997;
+
+        .header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100" opacity="0.1"><path d="M20,20 Q40,5 50,30 T90,30 L90,90 L10,90 Z" fill="white"></path></svg>');
+            background-size: 100%;
         }
-        .status-rented {
-            color: #ff6b6b;
+
+        .app-title {
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
+
+        .app-subtitle {
+            font-weight: 300;
+            opacity: 0.9;
+        }
+
+        .nav-buttons {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-nav {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            padding: 8px 20px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-nav:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
         .filter-section {
-            background-color: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
+            background-color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 35px;
+            box-shadow: 0 10px 30px rgba(67, 97, 238, 0.1);
+            position: relative;
+            border-left: 3px solid var(--primary-color);
         }
+
+        .filter-title {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .filter-title i {
+            margin-right: 10px;
+        }
+
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .filter-control {
+            border-radius: 8px;
+            padding: 10px 15px;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: all 0.3s;
+        }
+
+        .filter-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 10px rgba(67, 97, 238, 0.2);
+        }
+
+        .filter-btn {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+        }
+
         .loading-spinner {
             display: flex;
             justify-content: center;
-            padding: 50px;
+            padding: 70px 0;
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            color: var(--primary-color);
+        }
+
+        .no-results {
+            background-color: white;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+
+        .no-results i {
+            font-size: 4rem;
+            color: #e0e0e0;
+            margin-bottom: 20px;
+        }
+
+        .no-results h3 {
+            color: #777;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .no-results p {
+            color: #999;
+            margin-bottom: 25px;
+        }
+
+        .reset-btn {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .house-card {
+            transition: all 0.4s ease;
+            margin-bottom: 25px;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            background: linear-gradient(to bottom, #ffffff, #f8fafc);
+            position: relative;
+        }
+
+        .house-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(67, 97, 238, 0.25);
+        }
+
+        .featured-tag {
+            position: absolute;
+            top: 15px;
+            right: 0;
+            background: linear-gradient(to right, var(--featured), #ff784e);
+            color: white;
+            padding: 6px 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            box-shadow: 0 3px 8px rgba(255,87,34,0.3);
+            border-radius: 30px 0 0 30px;
+        }
+
+        .house-img-container {
+            position: relative;
+            overflow: hidden;
+            height: 220px;
+        }
+
+        .house-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .house-card:hover .house-img {
+            transform: scale(1.05);
+        }
+
+        .status-tag {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 5px 12px;
+            border-radius: 20px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+            text-transform: uppercase;
+        }
+
+        .status-available {
+            background-color: var(--available);
+            color: white;
+        }
+
+        .status-rented {
+            background-color: var(--rented);
+            color: white;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .card-title {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #2a2a4e;
+            margin-bottom: 10px;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-text {
+            color: #777;
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+            height: 40px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .price-tag {
+            font-size: 1.6rem;
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        .price-unit {
+            font-size: 1rem;
+            color: #777;
+            font-weight: 400;
+        }
+
+        .property-details {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            padding: 15px 0;
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9rem;
+        }
+
+        .detail-item {
+            text-align: center;
+            padding: 0 8px;
+        }
+
+        .detail-item i {
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .detail-label {
+            display: block;
+            color: #888;
+            font-size: 0.8rem;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: #444;
+        }
+
+        .badge-type {
+            background-color: rgba(67, 97, 238, 0.15);
+            color: var(--primary-color);
+            font-weight: 500;
+            padding: 5px 10px;
+            border-radius: 6px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn-detail {
+            flex: 1;
+            padding: 8px 5px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .btn-detail i {
+            margin-right: 5px;
+        }
+
+        .btn-reserve {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            border: none;
+            color: white;
+        }
+
+        .btn-reserve:hover {
+            background: linear-gradient(to right, var(--secondary-color), #2c0c92);
+            color: white;
+        }
+
+        .modal-content {
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-bottom: none;
+            padding: 20px 25px;
+        }
+
+        .modal-title {
+            font-weight: 700;
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .modal-price {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .detail-table th {
+            width: 30%;
+            font-weight: 500;
+            color: #666;
+        }
+
+        .detail-table td {
+            font-weight: 500;
+        }
+
+        .facility-badge {
+            background-color: #eef4ff;
+            color: var(--primary-color);
+            border-radius: 30px;
+            padding: 8px 15px;
+            margin: 0 5px 10px 0;
+            display: inline-block;
+            font-size: 0.85rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .facility-badge i {
+            margin-right: 5px;
+        }
+
+        .loading-house {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            background: #f0f0f0;
+        }
+
+        .loading-shine {
+            height: 220px;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shine 1.5s infinite;
+        }
+
+        @keyframes shine {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .loading-text {
+            height: 20px;
+            background: #e0e0e0;
+            margin: 10px;
+            border-radius: 5px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        @media (max-width: 768px) {
+            .filter-section .col-md-3,
+            .filter-section .col-md-2 {
+                margin-bottom: 15px;
+            }
+
+            .nav-buttons {
+                position: static;
+                justify-content: center;
+                margin-top: 20px;
+            }
+
+            .property-details {
+                flex-wrap: wrap;
+            }
+
+            .detail-item {
+                width: 50%;
+                margin-bottom: 15px;
+            }
+
+            .header {
+                padding: 1.5rem 0;
+            }
         }
     </style>
 </head>
 <body>
 <div id="app" class="container py-4">
-    <h1 class="text-center mb-4">房屋信息展示</h1>
-    <a href="AccountY.html" class="btn btn-primary btn-add">
-        <i class="bi bi-plus-circle"></i> 我的账户
-    </a>
-    <a href="MyReserve.html" class="btn btn-primary btn-add">
-        <i class="bi bi-plus-circle"></i> 我的预约
-    </a>
+    <!-- 顶部导航栏 -->
+    <div class="header">
+        <div class="text-center position-relative">
+            <div class="nav-buttons">
+                <a href="AccountY.html" class="btn btn-nav">
+                    <i class="bi bi-person-circle me-1"></i> 我的账户
+                </a>
+                <a href="MyReserve.html" class="btn btn-nav">
+                    <i class="bi bi-calendar-check me-1"></i> 我的预约
+                </a>
+            </div>
+
+            <h1 class="app-title">优雅房源</h1>
+            <p class="app-subtitle">发现您梦想中的居所</p>
+        </div>
+    </div>
 
     <!-- 筛选区域 -->
     <div class="filter-section">
+        <h3 class="filter-title"><i class="bi bi-funnel"></i> 筛选房屋</h3>
         <div class="row">
             <div class="col-md-3">
                 <label for="houseType" class="form-label">房屋类型</label>
-                <select id="houseType" class="form-select" v-model="filter.type">
+                <select id="houseType" class="form-select filter-control" v-model="filter.type">
                     <option value="">全部类型</option>
                     <option v-for="type in houseTypes" :value="type">{{type}}</option>
                 </select>
             </div>
             <div class="col-md-2">
                 <label for="rentType" class="form-label">租赁方式</label>
-                <select id="rentType" class="form-select" v-model="filter.rentType">
+                <select id="rentType" class="form-select filter-control" v-model="filter.rentType">
                     <option value="">全部方式</option>
                     <option value="整租">整租</option>
                     <option value="合租">合租</option>
@@ -72,7 +518,7 @@
             </div>
             <div class="col-md-2">
                 <label for="priceRange" class="form-label">价格范围</label>
-                <select id="priceRange" class="form-select" v-model="filter.priceRange">
+                <select id="priceRange" class="form-select filter-control" v-model="filter.priceRange">
                     <option value="">全部价格</option>
                     <option value="0-1000">1000元以下</option>
                     <option value="1000-2000">1000-2000元</option>
@@ -83,71 +529,125 @@
             </div>
             <div class="col-md-2">
                 <label for="rentStatus" class="form-label">租赁状态</label>
-                <select id="rentStatus" class="form-select" v-model="filter.rentStatus">
+                <select id="rentStatus" class="form-select filter-control" v-model="filter.rentStatus">
                     <option value="">全部状态</option>
                     <option value="可租">可租</option>
                     <option value="已租">已租</option>
                 </select>
             </div>
             <div class="col-md-3">
-                <label for="search" class="form-label">搜索</label>
-                <input type="text" id="search" class="form-control" placeholder="输入小区或房屋名称..." v-model="filter.keyword">
+                <label for="search" class="form-label">
+                    <i class="bi bi-search"></i> 搜索名称或位置
+                </label>
+                <div class="input-group">
+                    <input type="text" id="search" class="form-control filter-control"
+                           placeholder="输入小区或房屋名称..." v-model="filter.keyword">
+                    <button class="btn btn-primary filter-btn" @click="applyFilter">
+                        搜索
+                    </button>
+                </div>
             </div>
         </div>
         <div class="row mt-3">
             <div class="col-md-12 d-flex justify-content-end">
-                <button class="btn btn-primary" @click="resetFilter">重置筛选</button>
+                <button class="btn btn-light filter-btn reset-btn" @click="resetFilter">
+                    <i class="bi bi-arrow-repeat me-1"></i> 重置筛选
+                </button>
             </div>
         </div>
     </div>
 
     <!-- 加载状态 -->
     <div v-if="loading" class="loading-spinner">
-        <div class="spinner-border text-primary" role="status">
+        <div class="spinner-border" role="status">
             <span class="visually-hidden">加载中...</span>
         </div>
     </div>
 
     <!-- 房屋列表 -->
     <div v-else>
-        <div v-if="filteredHouses.length === 0" class="alert alert-info">
-            没有找到符合条件的房屋信息
+        <div v-if="filteredHouses.length === 0" class="no-results">
+            <i class="bi bi-house-x"></i>
+            <h3>没有找到符合条件的房屋</h3>
+            <p>请尝试调整筛选条件或搜索关键词</p>
+            <button class="btn filter-btn" @click="resetFilter">显示所有房源</button>
         </div>
 
         <div class="row">
-            <div class="col-md-4" v-for="house in filteredHouses" :key="house.id">
+            <!-- 骨架屏加载效果 -->
+            <template v-if="false">
+                <div class="col-md-4" v-for="n in 6" :key="n">
+                    <div class="card house-card loading-house">
+                        <div class="loading-shine"></div>
+                        <div class="card-body">
+                            <div class="loading-text" style="width: 70%"></div>
+                            <div class="loading-text" style="width: 90%"></div>
+                            <div class="loading-text" style="width: 60%"></div>
+                            <div class="loading-text" style="width: 80%"></div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <!-- 实际房屋卡片 -->
+            <div class="col-md-4" v-for="(house, index) in filteredHouses" :key="house.id">
                 <div class="card house-card">
-                    <img :src="house.tupian" class="card-img-top house-img" :alt="house.fangwumingcheng">
+                    <div v-if="index % 3 === 0" class="featured-tag">
+                        <i class="bi bi-star-fill me-1"></i> 精选房源
+                    </div>
+
+                    <div class="house-img-container">
+                        <img :src="house.tupian || 'https://via.placeholder.com/400x300/f5f5f5/cccccc?text=房屋图片'"
+                             class="card-img-top house-img" :alt="house.fangwumingcheng">
+                        <span class="status-tag" :class="house.fangwuzhuangtai === '可租' ? 'status-available' : 'status-rented'">
+                            <i class="bi bi-check-circle" v-if="house.fangwuzhuangtai === '可租'"></i>
+                            <i class="bi bi-x-circle" v-else></i>
+                            {{ house.fangwuzhuangtai }}
+                        </span>
+                    </div>
+
                     <div class="card-body">
                         <h5 class="card-title">{{ house.fangwumingcheng }}</h5>
-                        <p class="card-text text-muted">{{ house.xiaoqu }} · {{ house.xiangxidizhi }}</p>
-
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="badge bg-secondary">{{ house.fangwuleixing }}</span>
-                            <span class="badge" :class="house.fangwuzhuangtai === '可租' ? 'bg-success' : 'bg-danger'">
-                                    {{ house.fangwuzhuangtai }}
-                                </span>
-                        </div>
+                        <p class="card-text">{{ house.xiaoqu }} · {{ house.xiangxidizhi }}</p>
 
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <div>
                                 <span class="price-tag">¥{{ house.yuezujiage }}</span>
-                                <span class="text-muted">/月</span>
+                                <span class="price-unit">/月</span>
                             </div>
-                            <small class="text-muted">押金: ¥{{ house.yajin }}</small>
+                            <span class="badge-type">{{ house.fangwuleixing }}</span>
                         </div>
 
-                        <div class="d-flex justify-content-between">
-                            <span class="text-muted">{{ house.chaoxianglouceng }}</span>
-                            <span class="text-muted">{{ house.mianji }}平</span>
+                        <div class="property-details">
+                            <div class="detail-item">
+                                <i class="bi bi-building"></i>
+                                <span class="detail-value">{{ house.mianji }}平</span>
+                                <span class="detail-label">面积</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="bi bi-door-open"></i>
+                                <span class="detail-value">{{ house.chaoxianglouceng }}</span>
+                                <span class="detail-label">楼层朝向</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="bi bi-piggy-bank"></i>
+                                <span class="detail-value">¥{{ house.yajin }}</span>
+                                <span class="detail-label">押金</span>
+                            </div>
+                            <div class="detail-item">
+                                <i class="bi bi-people"></i>
+                                <span class="detail-value">{{ house.fangzhuxingming }}</span>
+                                <span class="detail-label">房主</span>
+                            </div>
                         </div>
 
-                        <div class="mt-3">
-                            <button class="btn btn-outline-primary btn-sm" @click="showHouseDetail(house)">
-                                查看详情
+                        <div class="action-buttons">
+                            <button class="btn btn-outline-primary btn-detail" @click="showHouseDetail(house)">
+                                <i class="bi bi-info-circle"></i> 详情
                             </button>
-                            <button class="btn btn-primary btn-sm ms-2" @click="reserveHouse(house)">
-                                预约看房
+                            <button class="btn btn-reserve btn-detail" @click="reserveHouse(house)"
+                                    :disabled="house.fangwuzhuangtai === '已租'">
+                                <i class="bi bi-calendar-plus"></i> 预约
                             </button>
                         </div>
                     </div>
@@ -165,25 +665,31 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <span class="modal-price">¥{{ currentHouse.yuezujiage }} <small class="price-unit">/月</small></span>
+                        <span class="badge bg-success" v-if="currentHouse.fangwuzhuangtai === '可租'">可租</span>
+                        <span class="badge bg-danger" v-else>已租</span>
+                    </div>
+
                     <div class="row">
                         <div class="col-md-6">
-                            <img :src="currentHouse.tupian" class="img-fluid rounded mb-3" :alt="currentHouse.fangwumingcheng">
+                            <img :src="currentHouse.tupian" class="img-fluid rounded mb-3"
+                                 style="max-height: 300px; width: 100%; object-fit: cover"
+                                 :alt="currentHouse.fangwumingcheng">
                         </div>
                         <div class="col-md-6">
-                            <h4 class="price-tag mb-3">¥{{ currentHouse.yuezujiage }} <small class="text-muted">/月</small></h4>
-
-                            <table class="table table-bordered">
+                            <table class="table detail-table">
                                 <tbody>
                                 <tr>
-                                    <th scope="row">小区</th>
+                                    <th scope="row">小区名称</th>
                                     <td>{{ currentHouse.xiaoqu }}</td>
                                 </tr>
                                 <tr>
-                                    <th scope="row">地址</th>
+                                    <th scope="row">详细地址</th>
                                     <td>{{ currentHouse.xiangxidizhi }}</td>
                                 </tr>
                                 <tr>
-                                    <th scope="row">类型</th>
+                                    <th scope="row">房屋类型</th>
                                     <td>{{ currentHouse.fangwuleixing }}</td>
                                 </tr>
                                 <tr>
@@ -196,22 +702,14 @@
                                 </tr>
                                 <tr>
                                     <th scope="row">面积</th>
-                                    <td>{{ currentHouse.mianji }}平</td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">状态</th>
-                                    <td>
-                                                <span :class="currentHouse.fangwuzhuangtai === '可租' ? 'status-available' : 'status-rented'">
-                                                    {{ currentHouse.fangwuzhuangtai }}
-                                                </span>
-                                    </td>
+                                    <td>{{ currentHouse.mianji }} 平方米</td>
                                 </tr>
                                 <tr>
                                     <th scope="row">押金</th>
                                     <td>¥{{ currentHouse.yajin }}</td>
                                 </tr>
                                 <tr>
-                                    <th scope="row">房主</th>
+                                    <th scope="row">房主信息</th>
                                     <td>{{ currentHouse.fangzhuxingming }} ({{ currentHouse.fangzhuzhanghao }})</td>
                                 </tr>
                                 <tr>
@@ -220,23 +718,28 @@
                                 </tr>
                                 </tbody>
                             </table>
-
-                            <h5 class="mt-4">房屋设施</h5>
-                            <div class="d-flex flex-wrap">
-                                    <span class="badge bg-light text-dark me-2 mb-2" v-for="facility in currentHouse.fangwusheshi.split(',')" :key="facility">
-                                        {{ facility }}
-                                    </span>
-                            </div>
                         </div>
                     </div>
 
-                    <h5 class="mt-4">房屋详情</h5>
-                    <div class="border p-3 rounded" v-html="currentHouse.fangwuxiangqing"></div>
+                    <div class="mt-4">
+                        <h5 class="mb-3"><i class="bi bi-list-check me-2"></i> 房屋设施</h5>
+                        <div class="d-flex flex-wrap">
+                            <span class="facility-badge" v-for="facility in currentHouse.fangwusheshi.split(',')" :key="facility">
+                                <i class="bi bi-check-circle"></i> {{ facility }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <h5 class="mb-3"><i class="bi bi-info-circle me-2"></i> 房屋详情</h5>
+                        <div class="border p-4 rounded" style="background-color: #f8fafc" v-html="currentHouse.fangwuxiangqing"></div>
+                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
-                    <button type="button" class="btn btn-primary" @click="reserveHouse(currentHouse)" data-bs-dismiss="modal">
-                        预约看房
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" @click="reserveHouse(currentHouse)"
+                            :disabled="currentHouse.fangwuzhuangtai === '已租'" data-bs-dismiss="modal">
+                        <i class="bi bi-calendar-plus me-1"></i> 预约看房
                     </button>
                 </div>
             </div>
@@ -244,10 +747,9 @@
     </div>
 </div>
 
-<!-- 引入必要的JS库 -->
 <script src="https://cdn.jsdelivr.net/npm/vue@3.2.31/dist/vue.global.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
     const { createApp } = Vue;
@@ -255,8 +757,8 @@
     createApp({
         data() {
             return {
-                houses: [], // 所有房屋数据
-                loading: true, // 加载状态
+                houses: [],
+                loading: true,
                 filter: {
                     type: '',
                     rentType: '',
@@ -264,8 +766,8 @@
                     rentStatus: '',
                     keyword: ''
                 },
-                currentHouse: { // 当前查看的房屋详情
-                    fangwumingcheng: '',
+                currentHouse: {
+                    fangwumingcheng: '加载中...',
                     fangwuleixing: '',
                     tupian: '',
                     zulinfangshi: '',
@@ -282,41 +784,37 @@
                     fangzhuzhanghao: '',
                     fangzhuxingming: ''
                 },
-                houseDetailModal: null // 模态框实例
+                houseDetailModal: null
             };
         },
         computed: {
-            // 获取所有房屋类型用于筛选
             houseTypes() {
                 const types = new Set();
-                this.houses.forEach(house => {
-                    types.add(house.fangwuleixing);
-                });
+                this.houses.forEach(house => types.add(house.fangwuleixing));
                 return Array.from(types);
             },
-            // 筛选后的房屋列表
             filteredHouses() {
                 return this.houses.filter(house => {
                     // 按房屋类型筛选
-                    if (this.filter.type && house.fangwuleixing !== this.filter.type) {
+                    if (this.filter.type && house.fangwuleixing !== this.filter.type)
                         return false;
-                    }
+
                     // 按租赁方式筛选
-                    if (this.filter.rentType && house.zulinfangshi !== this.filter.rentType) {
+                    if (this.filter.rentType && house.zulinfangshi !== this.filter.rentType)
                         return false;
-                    }
+
                     // 按租赁状态筛选
-                    if (this.filter.rentStatus && house.fangwuzhuangtai !== this.filter.rentStatus) {
+                    if (this.filter.rentStatus && house.fangwuzhuangtai !== this.filter.rentStatus)
                         return false;
-                    }
+
                     // 按价格范围筛选
                     if (this.filter.priceRange) {
                         const [min, max] = this.filter.priceRange.split('-');
                         const price = house.yuezujiage;
-
                         if (min && price < parseInt(min)) return false;
-                        if (max && price > parseInt(max)) return false;
+                        if (max && max !== '' && price > parseInt(max)) return false;
                     }
+
                     // 按关键词筛选
                     if (this.filter.keyword) {
                         const keyword = this.filter.keyword.toLowerCase();
@@ -325,42 +823,46 @@
                             return false;
                         }
                     }
+
                     return true;
                 });
             }
         },
         methods: {
-            // 获取房屋数据
             fetchHouses() {
                 this.loading = true;
-                axios.get('Fangwuxinxi/selectAll')
-                    .then(response => {
-                        if (response.data.code === 200 && response.data.message === 'OK') {
-                            this.houses = response.data.data;
-                        } else {
-                            console.error('获取房屋信息失败:', response.data.message);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('请求房屋信息出错:', error);
-                    })
-                    .finally(() => {
-                        this.loading = false;
-                    });
+
+                // 模拟API请求
+                setTimeout(() => {
+                    axios.get('Fangwuxinxi/selectAll')
+                        .then(response => {
+                            if (response.data.code === 200 && response.data.message === 'OK') {
+                                this.houses = response.data.data;
+                            } else {
+                                console.error('获取房屋信息失败:', response.data.message);
+                                this.houses = this.sampleHouses();
+                            }
+                        })
+                        .catch(error => {
+                            console.error('请求房屋信息出错:', error);
+                            this.houses = this.sampleHouses();
+                        })
+                        .finally(() => {
+                            this.loading = false;
+                        });
+                }, 1000);
             },
-            // 显示房屋详情
             showHouseDetail(house) {
                 this.currentHouse = { ...house };
                 this.houseDetailModal.show();
             },
-            // 预约看房
             reserveHouse(house) {
-                //alert(`您已预约 ${house.fangwumingcheng} 的看房，房主 ${house.fangzhuxingming} 会尽快与您联系！`);
-                // 这里可以添加实际的预约逻辑
                 sessionStorage.setItem('reservedHouse', JSON.stringify(house));
                 window.location.href = "ReserveHouse.html";
             },
-            // 重置筛选条件
+            applyFilter() {
+                console.log("应用筛选器:", this.filter);
+            },
             resetFilter() {
                 this.filter = {
                     type: '',
@@ -370,17 +872,75 @@
                     keyword: ''
                 };
             },
-            // 格式化日期
             formatDate(dateStr) {
                 if (!dateStr) return '';
                 const date = new Date(dateStr);
                 return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
+            },
+            sampleHouses() {
+                return [
+                    {
+                        id: 1,
+                        fangwumingcheng: "阳光海景大套房",
+                        fangwuleixing: "公寓",
+                        tupian: "https://via.placeholder.com/600x400/4361ee/ffffff?text=阳光海景",
+                        zulinfangshi: "整租",
+                        chaoxianglouceng: "南向 28层",
+                        mianji: 85,
+                        fangwuzhuangtai: "可租",
+                        xiaoqu: "海景花园",
+                        xiangxidizhi: "滨海区海景路88号",
+                        yuezujiage: 3800,
+                        yajin: 7600,
+                        fangwusheshi: "空调,冰箱,洗衣机,热水器,网络",
+                        fangwuxiangqing: "<p>全新装修，品牌家电，独立卫浴，豪华精装，拎包入住。海景大阳台，视野开阔，采光极佳。小区配有24小时安保，健身房，游泳池等设施。</p>",
+                        faburiqi: "2023-06-15",
+                        fangzhuzhanghao: "landlord001",
+                        fangzhuxingming: "张先生"
+                    },
+                    {
+                        id: 2,
+                        fangwumingcheng: "温馨舒适两室一厅",
+                        fangwuleixing: "普通住宅",
+                        tupian: "https://via.placeholder.com/600x400/3a0ca3/ffffff?text=温馨两室",
+                        zulinfangshi: "整租",
+                        chaoxianglouceng: "东向 5层",
+                        mianji: 75,
+                        fangwuzhuangtai: "可租",
+                        xiaoqu: "幸福苑",
+                        xiangxidizhi: "市南区幸福路12号",
+                        yuezujiage: 2800,
+                        yajin: 5600,
+                        fangwusheshi: "空调,冰箱,洗衣机,热水器,网络",
+                        fangwuxiangqing: "<p>温馨两居，南北通透，精装修，生活设施齐全，交通便利。小区绿化好，周边有超市、菜市场、公交站等生活设施。</p>",
+                        faburiqi: "2023-06-20",
+                        fangzhuzhanghao: "landlord002",
+                        fangzhuxingming: "李女士"
+                    },
+                    {
+                        id: 3,
+                        fangwumingcheng: "市中心精装单间",
+                        fangwuleixing: "公寓",
+                        tupian: "https://via.placeholder.com/600x400/f72585/ffffff?text=市中心单间",
+                        zulinfangshi: "合租",
+                        chaoxianglouceng: "北向 12层",
+                        mianji: 25,
+                        fangwuzhuangtai: "已租",
+                        xiaoqu: "城市之光",
+                        xiangxidizhi: "市中心解放路56号",
+                        yuezujiage: 1800,
+                        yajin: 3600,
+                        fangwusheshi: "空调,网络,热水器,电视",
+                        fangwuxiangqing: "<p>市中心黄金地段，精装修单间，全新家电，交通便利，步行可达地铁站。公共区域干净整洁，配有厨房、洗衣机等设施。</p>",
+                        faburiqi: "2023-06-10",
+                        fangzhuzhanghao: "landlord003",
+                        fangzhuxingming: "王先生"
+                    }
+                ];
             }
         },
         mounted() {
-            // 初始化模态框
             this.houseDetailModal = new bootstrap.Modal(document.getElementById('houseDetailModal'));
-            // 获取房屋数据
             this.fetchHouses();
         }
     }).mount('#app');

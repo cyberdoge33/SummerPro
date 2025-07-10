@@ -3,122 +3,525 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>我的房屋管理</title>
+  <title>房屋管理</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
-    .house-card {
-      transition: all 0.3s ease;
-      margin-bottom: 20px;
+    :root {
+      --primary-color: #3498db;
+      --secondary-color: #2c3e50;
+      --light-bg: #f5f7fa;
+      --border-color: #e0e3e7;
+      --success-color: #2ecc71;
+      --warning-color: #f39c12;
+      --error-color: #e74c3c;
+      --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      --card-hover-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
     }
-    .house-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+
+    * {
+      font-family: 'Noto Sans SC', sans-serif;
     }
-    .house-img {
-      height: 200px;
-      object-fit: cover;
+
+    body {
+      background-color: var(--light-bg);
+      background-image: linear-gradient(135deg, #e4e8f0 0%, #d1d8e4 100%);
+      min-height: 100vh;
+      padding-bottom: 50px;
     }
-    .price-tag {
-      font-size: 1.5rem;
-      color: #ff6b6b;
-      font-weight: bold;
+
+    .management-container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 20px;
     }
-    .status-available {
-      color: #20c997;
-    }
-    .status-rented {
-      color: #ff6b6b;
-    }
-    .loading-spinner {
-      display: flex;
-      justify-content: center;
-      padding: 50px;
-    }
+
     .management-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 30px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+      gap: 20px;
+      background-color: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: var(--card-shadow);
     }
-    .btn-add {
-      padding: 10px 20px;
+
+    .header-title {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--secondary-color);
+      margin: 0;
     }
+
+    .action-buttons {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .btn-action {
+      padding: 12px 25px;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .btn-action:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    }
+
+    .btn-primary-action {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .btn-secondary-action {
+      background-color: var(--secondary-color);
+      color: white;
+    }
+
+    .btn-success-action {
+      background-color: var(--success-color);
+      color: white;
+    }
+
+    .loading-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 300px;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: var(--card-shadow);
+    }
+
+    .house-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 30px;
+    }
+
+    .house-card {
+      background-color: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--card-shadow);
+      transition: all 0.3s ease;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .house-card:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--card-hover-shadow);
+    }
+
+    .house-img-container {
+      position: relative;
+      height: 250px;
+      overflow: hidden;
+    }
+
+    .house-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .house-card:hover .house-img {
+      transform: scale(1.05);
+    }
+
+    .status-badge {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      padding: 6px 15px;
+      border-radius: 20px;
+      font-weight: 500;
+      font-size: 14px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    }
+
+    .status-available {
+      background-color: var(--success-color);
+      color: white;
+    }
+
+    .status-rented {
+      background-color: var(--error-color);
+      color: white;
+    }
+
+    .house-content {
+      padding: 25px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .house-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--secondary-color);
+      margin-bottom: 10px;
+    }
+
+    .house-location {
+      color: #7f8c8d;
+      font-size: 15px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .house-meta {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .house-type {
+      background-color: #f0f4f8;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--secondary-color);
+    }
+
+    .house-price {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+
+    .price-label {
+      font-size: 14px;
+      color: #7f8c8d;
+      font-weight: 400;
+    }
+
+    .house-details {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .detail-item {
+      text-align: center;
+      flex: 1;
+    }
+
+    .detail-value {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--secondary-color);
+    }
+
+    .detail-label {
+      font-size: 13px;
+      color: #7f8c8d;
+    }
+
+    .house-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: auto;
+    }
+
+    .btn-action-sm {
+      flex: 1;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.3s;
+    }
+
+    .btn-edit {
+      background-color: rgba(52, 152, 219, 0.1);
+      color: var(--primary-color);
+      border: 1px solid rgba(52, 152, 219, 0.3);
+    }
+
+    .btn-edit:hover {
+      background-color: rgba(52, 152, 219, 0.2);
+      color: var(--primary-color);
+    }
+
+    .btn-delete {
+      background-color: rgba(231, 76, 60, 0.1);
+      color: var(--error-color);
+      border: 1px solid rgba(231, 76, 60, 0.3);
+    }
+
+    .btn-delete:hover {
+      background-color: rgba(231, 76, 60, 0.2);
+      color: var(--error-color);
+    }
+
+    .empty-state {
+      background-color: white;
+      border-radius: 12px;
+      padding: 50px 30px;
+      text-align: center;
+      box-shadow: var(--card-shadow);
+    }
+
+    .empty-icon {
+      font-size: 60px;
+      color: #bdc3c7;
+      margin-bottom: 20px;
+    }
+
+    .empty-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--secondary-color);
+      margin-bottom: 15px;
+    }
+
+    .empty-text {
+      color: #7f8c8d;
+      margin-bottom: 25px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .modal-header {
+      background-color: var(--secondary-color);
+      color: white;
+      border-bottom: none;
+      padding: 20px 25px;
+    }
+
+    .modal-title {
+      font-weight: 600;
+      font-size: 22px;
+    }
+
+    .modal-content {
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+    }
+
+    .modal-body {
+      padding: 25px;
+    }
+
+    .form-section {
+      margin-bottom: 25px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .form-section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--secondary-color);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title i {
+      font-size: 22px;
+    }
+
+    .image-upload-container {
+      border: 2px dashed var(--border-color);
+      border-radius: 12px;
+      padding: 25px;
+      text-align: center;
+      transition: all 0.3s;
+      margin-bottom: 20px;
+    }
+
+    .image-upload-container:hover {
+      border-color: var(--primary-color);
+      background-color: rgba(52, 152, 219, 0.05);
+    }
+
+    .upload-icon {
+      font-size: 48px;
+      color: #bdc3c7;
+      margin-bottom: 15px;
+    }
+
     .preview-image {
       max-width: 100%;
-      max-height: 200px;
-      margin-top: 10px;
+      max-height: 250px;
+      border-radius: 8px;
+      margin-top: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
-    .image-upload-container {
-      margin-bottom: 15px;
+
+    .form-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 15px;
+      margin-top: 25px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    @media (max-width: 992px) {
+      .management-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .action-buttons {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .house-grid {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      }
+    }
+
+    @media (max-width: 768px) {
+      .management-container {
+        padding: 0 15px;
+      }
+
+      .management-header {
+        padding: 20px;
+      }
+
+      .header-title {
+        font-size: 26px;
+      }
+
+      .house-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+      }
+
+      .btn-action {
+        width: 100%;
+        justify-content: center;
+      }
     }
   </style>
 </head>
 <body>
-<div id="app" class="container py-4">
+<div id="app" class="management-container">
   <!-- 管理页面专属头部 -->
   <div class="management-header">
-    <h1>我的房屋管理</h1>
-    <a href="addFangwu.html" class="btn btn-primary btn-add">
-      <i class="bi bi-plus-circle"></i> 添加新房屋
-    </a>
-    <a href="AccountF.html" class="btn btn-primary btn-add">
-      <i class="bi bi-plus-circle"></i> 个人账户管理
-    </a>
-    <a href="ManageReserve.html" class="btn btn-primary btn-add">
-      <i class="bi bi-plus-circle"></i> 管理预约看房
-    </a>
+    <h1 class="header-title">
+      <i class="bi bi-house-door me-2"></i>我的房屋管理
+    </h1>
+    <div class="action-buttons">
+      <a href="addFangwu.html" class="btn btn-action btn-primary-action">
+        <i class="bi bi-plus-circle"></i> 添加新房屋
+      </a>
+      <a href="AccountF.html" class="btn btn-action btn-secondary-action">
+        <i class="bi bi-person-circle"></i> 个人账户
+      </a>
+      <a href="ManageReserve.html" class="btn btn-action btn-success-action">
+        <i class="bi bi-calendar-check"></i> 预约管理
+      </a>
+    </div>
   </div>
 
   <!-- 加载状态 -->
-  <div v-if="loading" class="loading-spinner">
-    <div class="spinner-border text-primary" role="status">
+  <div v-if="loading" class="loading-container">
+    <div class="spinner-border text-primary" style="width: 4rem; height: 4rem;" role="status">
       <span class="visually-hidden">加载中...</span>
     </div>
   </div>
 
   <!-- 房屋列表 -->
   <div v-else>
-    <div v-if="houses.length === 0" class="alert alert-info">
-      您还没有发布任何房屋信息，<a href="addFangwu.html" class="alert-link">点击添加</a>
+    <div v-if="houses.length === 0" class="empty-state">
+      <div class="empty-icon">
+        <i class="bi bi-house"></i>
+      </div>
+      <h3 class="empty-title">您还没有发布任何房屋信息</h3>
+      <p class="empty-text">点击下方按钮添加您的第一套房源，开始您的租赁管理之旅</p>
+      <a href="addFangwu.html" class="btn btn-primary-action btn-action">
+        <i class="bi bi-plus-circle"></i> 添加房屋
+      </a>
     </div>
 
-    <div class="row">
-      <div class="col-md-4" v-for="house in houses" :key="house.id">
-        <div class="card house-card">
-          <img :src="house.tupian" class="card-img-top house-img" :alt="house.fangwumingcheng" @error="handleImageError">
-          <div class="card-body">
-            <h5 class="card-title">{{ house.fangwumingcheng }}</h5>
-            <p class="card-text text-muted">{{ house.xiaoqu }} · {{ house.xiangxidizhi }}</p>
+    <div class="house-grid" v-else>
+      <div class="house-card" v-for="house in houses" :key="house.id">
+        <div class="house-img-container">
+          <img :src="house.tupian" class="house-img" :alt="house.fangwumingcheng" @error="handleImageError">
+          <span class="status-badge" :class="house.fangwuzhuangtai === '可租' ? 'status-available' : 'status-rented'">
+                        {{ house.fangwuzhuangtai }}
+                    </span>
+        </div>
 
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <span class="badge bg-secondary">{{ house.fangwuleixing }}</span>
-              <span class="badge" :class="house.fangwuzhuangtai === '可租' ? 'bg-success' : 'bg-danger'">
-                                {{ house.fangwuzhuangtai }}
-                            </span>
-            </div>
+        <div class="house-content">
+          <h3 class="house-title">{{ house.fangwumingcheng }}</h3>
+          <div class="house-location">
+            <i class="bi bi-geo-alt"></i> {{ house.xiaoqu }} · {{ house.xiangxidizhi }}
+          </div>
 
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <div>
-                <span class="price-tag">¥{{ house.yuezujiage }}</span>
-                <span class="text-muted">/月</span>
-              </div>
-              <small class="text-muted">押金: ¥{{ house.yajin }}</small>
+          <div class="house-meta">
+            <div class="house-type">
+              {{ house.fangwuleixing }}
             </div>
+            <div class="house-price">
+              ¥{{ house.yuezujiage }}<span class="price-label">/月</span>
+            </div>
+          </div>
 
-            <div class="d-flex justify-content-between">
-              <span class="text-muted">{{ house.chaoxianglouceng }}</span>
-              <span class="text-muted">{{ house.mianji }}m²</span>
+          <div class="house-details">
+            <div class="detail-item">
+              <div class="detail-value">{{ house.mianji || '--' }}</div>
+              <div class="detail-label">面积(m²)</div>
             </div>
+            <div class="detail-item">
+              <div class="detail-value">{{ house.chaoxianglouceng || '--' }}</div>
+              <div class="detail-label">朝向/楼层</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-value">¥{{ house.yajin || '--' }}</div>
+              <div class="detail-label">押金</div>
+            </div>
+          </div>
 
-            <div class="mt-3">
-              <button class="btn btn-outline-primary btn-sm" @click="openEditModal(house)">
-                修改信息
-              </button>
-              <button class="btn btn-danger btn-sm ms-2" @click="confirmDelete(house.id)">
-                删除
-              </button>
-            </div>
+          <div class="house-actions">
+            <button class="btn btn-action-sm btn-edit" @click="openEditModal(house)">
+              <i class="bi bi-pencil"></i> 修改
+            </button>
+            <button class="btn btn-action-sm btn-delete" @click="confirmDelete(house.id)">
+              <i class="bi bi-trash"></i> 删除
+            </button>
           </div>
         </div>
       </div>
@@ -130,21 +533,56 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">修改房屋信息</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <h5 class="modal-title">
+            <i class="bi bi-pencil-square me-2"></i>修改房屋信息
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <form @submit.prevent="submitEdit" enctype="multipart/form-data">
-            <div class="row">
-              <div class="col-md-6">
-                <div class="mb-3">
+            <div class="form-section">
+              <div class="section-title">
+                <i class="bi bi-image"></i>房屋图片
+              </div>
+
+              <div class="image-upload-container">
+                <div class="upload-icon">
+                  <i class="bi bi-cloud-arrow-up"></i>
+                </div>
+                <p class="text-muted mb-3">点击或拖放图片到此处上传</p>
+                <input type="file" class="form-control" @change="handleImageChange" accept="image/*">
+
+                <div class="mt-4">
+                  <img v-if="imagePreview" :src="imagePreview" class="preview-image" alt="图片预览">
+                  <img v-else-if="editForm.tupian" :src="editForm.tupian" class="preview-image" alt="当前图片" @error="handlePreviewImageError">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <div class="section-title">
+                <i class="bi bi-info-circle"></i>基本信息
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
                   <label class="form-label">房屋名称</label>
-                  <input type="text" class="form-control" v-model="editForm.fangwumingcheng" required>
+                  <input type="text" class="form-control form-control-lg" v-model="editForm.fangwumingcheng" required>
                 </div>
 
-                <div class="mb-3">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">租赁方式</label>
+                  <select class="form-select form-select-lg" v-model="editForm.zulinfangshi">
+                    <option value="整租">整租</option>
+                    <option value="合租">合租</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
                   <label class="form-label">房屋类型</label>
-                  <div class="row">
+                  <div class="row g-2">
                     <div class="col">
                       <select class="form-select" v-model="editForm.fangwuleixing_shi" required>
                         <option value="">室</option>
@@ -167,44 +605,43 @@
                   </div>
                 </div>
 
-                <div class="mb-3">
-                  <label class="form-label">租赁方式</label>
-                  <select class="form-select" v-model="editForm.zulinfangshi">
-                    <option value="整租">整租</option>
-                    <option value="合租">合租</option>
-                  </select>
-                </div>
-
-                <div class="mb-3">
+                <div class="col-md-6 mb-3">
                   <label class="form-label">房屋状态</label>
-                  <select class="form-select" v-model="editForm.fangwuzhuangtai">
+                  <select class="form-select form-select-lg" v-model="editForm.fangwuzhuangtai">
                     <option value="可租">可租</option>
                     <option value="已租">已租</option>
                   </select>
                 </div>
+              </div>
+            </div>
 
-                <div class="mb-3">
-                  <label class="form-label">月租价格(元)</label>
-                  <input type="number" class="form-control" v-model.number="editForm.yuezujiage" min="0" required>
-                </div>
-
-                <div class="mb-3">
-                  <label class="form-label">押金(元)</label>
-                  <input type="number" class="form-control" v-model.number="editForm.yajin" min="0" required>
-                </div>
-
-                <div class="image-upload-container">
-                  <label class="form-label">房屋图片</label>
-                  <input type="file" class="form-control" @change="handleImageChange" accept="image/*">
-                  <img v-if="imagePreview" :src="imagePreview" class="preview-image" alt="图片预览">
-                  <img v-else-if="editForm.tupian" :src="editForm.tupian" class="preview-image" alt="当前图片" @error="handlePreviewImageError">
-                </div>
+            <div class="form-section">
+              <div class="section-title">
+                <i class="bi bi-currency-exchange"></i>价格信息
               </div>
 
-              <div class="col-md-6">
-                <div class="mb-3">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">月租价格(元)</label>
+                  <input type="number" class="form-control form-control-lg" v-model.number="editForm.yuezujiage" min="0" required>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">押金(元)</label>
+                  <input type="number" class="form-control form-control-lg" v-model.number="editForm.yajin" min="0" required>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <div class="section-title">
+                <i class="bi bi-house"></i>房屋详情
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
                   <label class="form-label">朝向/楼层</label>
-                  <div class="row">
+                  <div class="row g-2">
                     <div class="col">
                       <select class="form-select" v-model="editForm.chaoxiang">
                         <option value="南北">南北</option>
@@ -217,38 +654,42 @@
                   </div>
                 </div>
 
-                <div class="mb-3">
+                <div class="col-md-6 mb-3">
                   <label class="form-label">面积(m²)</label>
-                  <input type="text" class="form-control" v-model="editForm.mianji">
+                  <input type="text" class="form-control form-control-lg" v-model="editForm.mianji">
                 </div>
+              </div>
 
-                <div class="mb-3">
+              <div class="row">
+                <div class="col-md-6 mb-3">
                   <label class="form-label">小区</label>
-                  <input type="text" class="form-control" v-model="editForm.xiaoqu">
+                  <input type="text" class="form-control form-control-lg" v-model="editForm.xiaoqu">
                 </div>
 
-                <div class="mb-3">
+                <div class="col-md-6 mb-3">
                   <label class="form-label">详细地址</label>
-                  <input type="text" class="form-control" v-model="editForm.xiangxidizhi">
+                  <input type="text" class="form-control form-control-lg" v-model="editForm.xiangxidizhi">
                 </div>
+              </div>
 
-                <div class="mb-3">
-                  <label class="form-label">房屋设施</label>
-                  <input type="text" class="form-control" v-model="editForm.fangwusheshi" placeholder="多个设施用逗号分隔">
-                </div>
+              <div class="mb-3">
+                <label class="form-label">房屋设施</label>
+                <input type="text" class="form-control form-control-lg" v-model="editForm.fangwusheshi" placeholder="多个设施用逗号分隔">
+              </div>
 
-                <div class="mb-3">
-                  <label class="form-label">房屋详情</label>
-                  <textarea class="form-control" v-model="editForm.fangwuxiangqing" rows="3"></textarea>
-                </div>
+              <div class="mb-3">
+                <label class="form-label">房屋详情</label>
+                <textarea class="form-control form-control-lg" v-model="editForm.fangwuxiangqing" rows="3"></textarea>
               </div>
             </div>
 
-            <div class="d-flex justify-content-end mt-3">
-              <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">取消</button>
-              <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
+            <div class="form-footer">
+              <button type="button" class="btn btn-secondary btn-lg" data-bs-dismiss="modal">
+                <i class="bi bi-x-lg"></i> 取消
+              </button>
+              <button type="submit" class="btn btn-primary btn-lg" :disabled="isSubmitting">
                 <span v-if="isSubmitting" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                {{ isSubmitting ? '保存中...' : '保存修改' }}
+                <i class="bi bi-check-lg"></i> {{ isSubmitting ? '保存中...' : '保存修改' }}
               </button>
             </div>
           </form>
@@ -311,14 +752,18 @@
     methods: {
       // 图片加载失败处理
       handleImageError(event) {
-        event.target.src = 'https://via.placeholder.com/350x200?text=图片加载失败';
-        event.target.onerror = null;
+        if (event.target.src.indexOf('via.placeholder.com') === -1) {
+          event.target.src = 'https://via.placeholder.com/600x400?text=图片加载失败';
+          event.target.onerror = null;
+        }
       },
 
       // 预览图片加载失败处理
       handlePreviewImageError(event) {
-        event.target.src = 'https://via.placeholder.com/350x200?text=图片加载失败';
-        event.target.onerror = null;
+        if (event.target.src.indexOf('via.placeholder.com') === -1) {
+          event.target.src = 'https://via.placeholder.com/600x400?text=图片加载失败';
+          event.target.onerror = null;
+        }
       },
 
       // 检查登录状态并加载房屋数据
@@ -407,7 +852,8 @@
           reader.readAsDataURL(file);
         }
       },
-/***********/
+
+      // 提交编辑表单
       submitEdit() {
         this.isSubmitting = true;
 
@@ -470,6 +916,7 @@
                   this.isSubmitting = false;
                 });
       },
+
       // 确认删除
       confirmDelete(houseId) {
         if (confirm('确定要删除这条房屋信息吗？此操作不可撤销！')) {
@@ -496,77 +943,6 @@
                   });
         }
       }
-      /**
-      // 提交编辑表单
-      submitEdit() {
-        this.isSubmitting = true;
-
-        // 准备表单数据
-        const formData = new FormData();
-
-        // 添加房屋信息
-        const houseData = {
-          ...this.editForm,
-          fangwuleixing: this.fullHouseType,
-          chaoxianglouceng: this.fullOrientationFloor
-        };
-
-        // 将房屋信息添加到FormData
-        for (const key in houseData) {
-          if (houseData[key] !== null && houseData[key] !== undefined) {
-            formData.append(key, houseData[key]);
-          }
-        }
-
-        // 如果有新图片，添加到FormData
-        if (this.imageFile) {
-          formData.append('file', this.imageFile);
-        }
-
-        // 发送请求
-        axios.post('/Fangwuxinxi/update', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        })
-                .then(response => {
-                  if (response.data.code === 200) {
-                    alert('修改成功');
-                    this.editModal.hide();
-                    this.loadHouses(sessionStorage.getItem('Fangzhuid'));
-                  } else {
-                    alert('修改失败: ' + response.data.message);
-                  }
-                })
-                .catch(error => {
-                  console.error('修改出错:', error);
-                  alert('修改出错，请重试');
-                })
-                .finally(() => {
-                  this.isSubmitting = false;
-                });
-      },
-
-      // 确认删除
-      confirmDelete(houseId) {
-        if (confirm('确定要删除这条房屋信息吗？此操作不可撤销！')) {
-          axios.delete(`/Fangwuxinxi/delete?id=${houseId}`)
-                  .then(response => {
-                    if (response.data.code === 200) {
-                      alert('删除成功');
-                      this.loadHouses(sessionStorage.getItem('Fangzhuid'));
-                    } else {
-                      alert('删除失败: ' + response.data.message);
-                    }
-                  })
-                  .catch(error => {
-                    console.error('删除出错:', error);
-                    alert('删除出错，请重试');
-                  });
-        }
-      }
-      */
-      /****/
     },
     mounted() {
       // 初始化模态框
